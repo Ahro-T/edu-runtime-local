@@ -1,11 +1,24 @@
 #!/bin/bash
 # setup-nuc.sh — One-command NUC deployment with democlaw LLM backend
-# Usage: ./scripts/setup-nuc.sh
+# Usage: ./scripts/setup-nuc.sh [--yes] [--discord-token TOKEN]
+#
+# --yes              Skip all prompts (overwrite .env, skip Discord token)
+# --discord-token T  Set Discord bot token non-interactively
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 DEMOCLAW_DIR="$(cd "$PROJECT_ROOT/.." && pwd)/democlaw"
+
+AUTO_YES=false
+CLI_DISCORD_TOKEN=""
+for arg in "$@"; do
+  case "$arg" in
+    --yes) AUTO_YES=true ;;
+    --discord-token) shift_next=true ;;
+    *) if [ "${shift_next:-false}" = "true" ]; then CLI_DISCORD_TOKEN="$arg"; shift_next=false; fi ;;
+  esac
+done
 
 # Trap Ctrl+C for clean exit
 cleanup() {
@@ -109,25 +122,29 @@ echo "[phase 3] Configuring .env..."
 
 cd "$PROJECT_ROOT"
 
+write_env=true
 if [ -f .env ]; then
-  printf "[phase 3] .env already exists. Overwrite? (y/N) "
-  read overwrite
-  if [ "$overwrite" != "y" ] && [ "$overwrite" != "Y" ]; then
-    echo "[phase 3] Keeping existing .env"
-  else
+  if [ "$AUTO_YES" = "true" ]; then
     write_env=true
+  else
+    printf "[phase 3] .env already exists. Overwrite? (y/N) "
+    read overwrite
+    if [ "$overwrite" != "y" ] && [ "$overwrite" != "Y" ]; then
+      echo "[phase 3] Keeping existing .env"
+      write_env=false
+    fi
   fi
-else
-  write_env=true
 fi
 
-if [ "${write_env:-false}" = "true" ]; then
-  echo ""
-  echo "[phase 3] Discord 봇 설정 (선택사항 — Enter로 건너뛰기)"
-  echo ""
-  printf "  Discord 봇 토큰: "
-  read discord_token
-  discord_token="${discord_token:-}"
+if [ "$write_env" = "true" ]; then
+  discord_token="$CLI_DISCORD_TOKEN"
+  if [ -z "$discord_token" ] && [ "$AUTO_YES" = "false" ]; then
+    echo ""
+    echo "[phase 3] Discord 봇 설정 (선택사항 — Enter로 건너뛰기)"
+    printf "  Discord 봇 토큰: "
+    read discord_token
+    discord_token="${discord_token:-}"
+  fi
 
   cat > .env << EOF
 DATABASE_URL=postgresql://postgres:postgres@postgres:5432/edu_runtime
