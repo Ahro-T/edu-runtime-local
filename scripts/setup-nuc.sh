@@ -115,24 +115,27 @@ if [ -f .env ]; then
   if [ "$overwrite" != "y" ] && [ "$overwrite" != "Y" ]; then
     echo "[phase 3] Keeping existing .env"
   else
-    cat > .env << 'EOF'
-DATABASE_URL=postgresql://postgres:postgres@postgres:5432/edu_runtime
-LLM_URL=http://llamacpp:8000
-LLM_MODEL=gemma-4-E4B-it
-VAULT_PATH=/app/wiki-vault
-OPENCLAW_GATEWAY_URL=http://openclaw:18789
-LOG_LEVEL=info
-PORT=3000
-EOF
-    echo "[phase 3] .env created"
+    write_env=true
   fi
 else
-  cat > .env << 'EOF'
+  write_env=true
+fi
+
+if [ "${write_env:-false}" = "true" ]; then
+  echo ""
+  echo "[phase 3] Discord 봇 설정 (선택사항 — Enter로 건너뛰기)"
+  echo ""
+  printf "  Discord 봇 토큰: "
+  read discord_token
+  discord_token="${discord_token:-}"
+
+  cat > .env << EOF
 DATABASE_URL=postgresql://postgres:postgres@postgres:5432/edu_runtime
 LLM_URL=http://llamacpp:8000
 LLM_MODEL=gemma-4-E4B-it
 VAULT_PATH=/app/wiki-vault
 OPENCLAW_GATEWAY_URL=http://openclaw:18789
+OPENCLAW_DISCORD_TOKEN=${discord_token}
 LOG_LEVEL=info
 PORT=3000
 EOF
