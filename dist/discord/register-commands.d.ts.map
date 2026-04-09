@@ -1,0 +1,1 @@
+{"version":3,"file":"register-commands.d.ts","sourceRoot":"","sources":["../../src/discord/register-commands.ts"],"names":[],"mappings":"AAAA;;;GAGG;AAGH,OAAO,KAAK,EAAE,MAAM,EAAE,MAAM,MAAM,CAAC;AA2CnC,wBAAsB,gBAAgB,CACpC,KAAK,EAAE,MAAM,EACb,QAAQ,EAAE,MAAM,EAChB,OAAO,EAAE,MAAM,EACf,MAAM,EAAE,MAAM,GACb,OAAO,CAAC,IAAI,CAAC,CAWf"}

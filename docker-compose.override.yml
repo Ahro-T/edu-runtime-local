@@ -1,0 +1,15 @@
+# Development overrides — applied automatically by Docker Compose when present.
+# Provides hot-reload via source bind-mount and Node.js debug port.
+services:
+  app:
+    build:
+      target: builder
+    command: ["node", "--watch", "--inspect=0.0.0.0:9229", "dist/main.js"]
+    volumes:
+      - ./src:/app/src
+      - ./vault:/app/vault
+    ports:
+      - "3000:3000"
+      - "9229:9229"
+    environment:
+      LOG_LEVEL: debug

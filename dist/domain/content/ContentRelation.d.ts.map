@@ -1,0 +1,1 @@
+{"version":3,"file":"ContentRelation.d.ts","sourceRoot":"","sources":["../../../src/domain/content/ContentRelation.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,YAAY,EAAE,MAAM,YAAY,CAAC;AAE/C,MAAM,WAAW,eAAe;IAC9B,UAAU,EAAE,MAAM,CAAC;IACnB,QAAQ,EAAE,MAAM,CAAC;IACjB,YAAY,EAAE,YAAY,CAAC;CAC5B"}

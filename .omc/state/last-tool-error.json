@@ -1,7 +1,7 @@
 {
-  "tool_name": "Read",
-  "tool_input_preview": "{\"file_path\":\"/home/pjm38/Edu/.omc/plans/edu-runtime-v1.md\"}",
-  "error": "File content (10316 tokens) exceeds maximum allowed tokens (10000). Use offset and limit parameters to read specific portions of the file, or search for specific content instead of reading the whole file.",
-  "timestamp": "2026-04-09T06:32:40.765Z",
-  "retry_count": 1
+  "tool_name": "WebFetch",
+  "tool_input_preview": "{\"url\":\"https://docs.openclaw.ai/reference/compile\",\"prompt\":\"What is the compile agent or compile command in OpenClaw?\"}",
+  "error": "Request failed with status code 404",
+  "timestamp": "2026-04-09T09:50:29.617Z",
+  "retry_count": 3
 }

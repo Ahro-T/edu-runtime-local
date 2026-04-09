@@ -1,0 +1,1 @@
+{"version":3,"file":"reviews.d.ts","sourceRoot":"","sources":["../../../src/api/routes/reviews.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,eAAe,EAAE,MAAM,SAAS,CAAC;AAC/C,OAAO,KAAK,EAAE,aAAa,EAAE,MAAM,iCAAiC,CAAC;AASrE,wBAAgB,aAAa,CAAC,aAAa,EAAE,aAAa,IACjC,KAAK,eAAe,KAAG,OAAO,CAAC,IAAI,CAAC,CAuB5D"}
