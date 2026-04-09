@@ -1,6 +1,8 @@
 services:
   postgres:
     image: docker.io/library/postgres:16
+    ports:
+      - "5432:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -12,11 +14,29 @@ services:
       retries: 5
       start_period: 10s
 
+  ollama:
+    image: docker.io/ollama/ollama:latest
+    devices:
+      - nvidia.com/gpu=all
+    volumes:
+      - ollama_data:/root/.ollama
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        ollama serve &
+        sleep 5
+        ollama pull gemma4:e2b
+        wait
+    ports:
+      - "11434:11434"
+
   app:
     build:
       context: .
       dockerfile: Dockerfile
       target: production
+    ports:
+      - "3000:3000"
     env_file:
       - .env
     volumes:
@@ -24,6 +44,7 @@ services:
       - ./wiki-vault:/app/wiki-vault
     depends_on:
       - postgres
+      - ollama
     healthcheck:
       test: ["CMD-SHELL", "node -e \"fetch('http://localhost:3000/health').then(r=>r.ok?process.exit(0):process.exit(1)).catch(()=>process.exit(1))\""]
       interval: 10s
@@ -33,6 +54,8 @@ services:
 
   openclaw:
     image: ghcr.io/openclaw/openclaw:latest
+    ports:
+      - "3100:3100"
     environment:
       DISCORD_TOKEN: ${OPENCLAW_DISCORD_TOKEN}
       DISCORD_GUILD_ID: ${OPENCLAW_DISCORD_GUILD_ID}
@@ -65,4 +88,5 @@ services:
           sleep 21600
         done
 
-
+volumes:
+  ollama_data:

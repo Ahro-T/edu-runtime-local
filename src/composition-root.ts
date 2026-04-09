@@ -4,7 +4,7 @@ import { DrizzleLearnerStateStore } from './adapters/db/DrizzleLearnerStateStore
 import { DrizzleSubmissionStore } from './adapters/db/DrizzleSubmissionStore.js';
 import { DrizzleLearnerEventStore } from './adapters/db/DrizzleLearnerEventStore.js';
 import { ObsidianContentRepository } from './adapters/content/obsidian/ObsidianContentRepository.js';
-import { VllmEvaluationEngine } from './adapters/evaluation/VllmEvaluationEngine.js';
+import { OllamaEvaluationEngine } from './adapters/evaluation/OllamaEvaluationEngine.js';
 import { LearnerService } from './services/LearnerService.js';
 import { SessionService } from './services/SessionService.js';
 import { ContentService } from './services/ContentService.js';
@@ -24,10 +24,8 @@ import type { ApiRoutes } from './api/server.js';
 export interface CompositionRootOptions {
   db: DbClient;
   vaultPath: string;
-  vllmUrl: string;
-  vllmModel?: string | undefined;
-  cfClientId?: string | undefined;
-  cfClientSecret?: string | undefined;
+  ollamaUrl: string;
+  ollamaModel?: string | undefined;
   logger: Logger;
 }
 
@@ -46,14 +44,14 @@ export interface CompositionRoot {
 }
 
 export function buildCompositionRoot(opts: CompositionRootOptions): CompositionRoot {
-  const { db, vaultPath, vllmUrl, vllmModel, cfClientId, cfClientSecret, logger } = opts;
+  const { db, vaultPath, ollamaUrl, ollamaModel, logger } = opts;
 
   // Adapters
   const learnerStateStore = new DrizzleLearnerStateStore(db, logger);
   const submissionStore = new DrizzleSubmissionStore(db, logger);
   const learnerEventStore = new DrizzleLearnerEventStore(db, logger);
   const contentRepository = new ObsidianContentRepository(vaultPath, logger);
-  const evaluationEngine = new VllmEvaluationEngine({ vllmUrl, model: vllmModel, cfClientId, cfClientSecret });
+  const evaluationEngine = new OllamaEvaluationEngine({ ollamaUrl, model: ollamaModel });
 
   // Services
   const learnerService = new LearnerService({ learnerStateStore, learnerEventStore, logger });
