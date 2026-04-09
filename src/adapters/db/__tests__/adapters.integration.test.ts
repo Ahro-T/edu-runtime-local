@@ -7,6 +7,7 @@ import * as schema from '../schema.js';
 import { DrizzleLearnerStateStore } from '../DrizzleLearnerStateStore.js';
 import { DrizzleSubmissionStore } from '../DrizzleSubmissionStore.js';
 import { DrizzleLearnerEventStore } from '../DrizzleLearnerEventStore.js';
+import { DrizzleReviewJobStore } from '../DrizzleReviewJobStore.js';
 import { createLogger } from '../../../logger.js';
 import type { Learner } from '../../../domain/learner/Learner.js';
 import type { NodeState } from '../../../domain/learner/NodeState.js';
@@ -263,6 +264,11 @@ describe('DrizzleSubmissionStore', () => {
     expect(results.length).toBeGreaterThanOrEqual(1);
   });
 
+  it('counts submissions for learner', async () => {
+    const total = await store.countSubmissionsForLearner('learner-1');
+    expect(total).toBeGreaterThanOrEqual(1);
+  });
+
   const evaluation: SubmissionEvaluation = {
     submissionId: 'sub-1',
     evaluatorModel: 'mistral-7b',
@@ -319,6 +325,16 @@ describe('DrizzleLearnerEventStore', () => {
   it('gets events for session', async () => {
     const events = await store.getEventsForSession('session-1');
     expect(events.length).toBeGreaterThanOrEqual(1);
+  });
+});
+
+// ---- ReviewJobStore tests ----
+
+describe('DrizzleReviewJobStore', () => {
+  let store: DrizzleReviewJobStore;
+
+  beforeAll(() => {
+    store = new DrizzleReviewJobStore(db as any, logger);
   });
 
   const job: ReviewJob = {

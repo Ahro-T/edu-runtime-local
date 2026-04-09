@@ -30,4 +30,4 @@ Plugins are discovered from a configuration manifest at startup. The runtime loa
 Plugins run within the same process but interact with the runtime only through defined interfaces. This prevents plugins from directly mutating core state.
 
 ### Why This Matters
-The plugin model is what makes OpenClaw composable. A Discord gateway, a vLLM evaluation engine, and a Postgres persistence adapter are all plugins — the core runtime knows nothing about them directly.
+The plugin model is what makes OpenClaw composable. A Discord gateway, an Ollama evaluation engine, and a Postgres persistence adapter are all plugins — the core runtime knows nothing about them directly.

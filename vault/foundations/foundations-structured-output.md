@@ -29,7 +29,7 @@ At each token generation step, the decoder masks out tokens that would produce i
 
 ### Why It Matters
 
-Agent harnesses depend on parsing model outputs to drive tool calls, state transitions, and evaluations. If the output isn't reliably structured, the entire pipeline breaks. This project's evaluation engine uses structured output to get consistent rubric scores from vLLM.
+Agent harnesses depend on parsing model outputs to drive tool calls, state transitions, and evaluations. If the output isn't reliably structured, the entire pipeline breaks. This project's evaluation engine uses structured output to get consistent rubric scores from Ollama (Gemma 4).
 
 ### Sources
 

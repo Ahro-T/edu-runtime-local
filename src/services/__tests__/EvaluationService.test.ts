@@ -65,9 +65,6 @@ function makeStores() {
     appendEvent: vi.fn(async (e) => e),
     getEventsForLearner: vi.fn(async () => []),
     getEventsForSession: vi.fn(async () => []),
-    createReviewJob: vi.fn(async (j) => j),
-    getPendingJobs: vi.fn(async () => []),
-    updateJobStatus: vi.fn(async (id, status) => ({ id, learnerId: '', nodeId: '', jobType: 'review' as const, status, scheduledFor: new Date(), payload: {} })),
   };
 
   const submissionStore: SubmissionStore = {
@@ -76,6 +73,7 @@ function makeStores() {
     getSubmissionsForNode: vi.fn(async () => []),
     createEvaluation: vi.fn(async (e) => e),
     getEvaluationForSubmission: vi.fn(async () => null),
+    countSubmissionsForLearner: vi.fn(async () => 0),
   };
 
   const contentRepo: ContentRepository = {

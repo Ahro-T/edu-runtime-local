@@ -24,7 +24,7 @@ services:
     command:
       - |
         ollama serve &
-        sleep 5
+        until ollama list >/dev/null 2>&1; do sleep 1; done
         ollama pull gemma4:e2b
         wait
     ports:
@@ -69,10 +69,7 @@ services:
       - app
 
   curriculum-cron:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: production
+    image: alpine:3.19
     volumes:
       - ./vault:/app/vault:ro
       - ./wiki-vault:/app/wiki-vault

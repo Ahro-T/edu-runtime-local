@@ -10,4 +10,7 @@ export interface SubmissionStore {
   // Evaluation operations
   createEvaluation(evaluation: SubmissionEvaluation): Promise<SubmissionEvaluation>;
   getEvaluationForSubmission(submissionId: string): Promise<SubmissionEvaluation | null>;
+
+  // Aggregation
+  countSubmissionsForLearner(learnerId: string): Promise<number>;
 }

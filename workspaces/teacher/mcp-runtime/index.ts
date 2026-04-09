@@ -25,7 +25,7 @@ function err(message: string) {
   return { content: [{ type: "text" as const, text: message }], isError: true as const };
 }
 
-const PILLARS = z.enum(["agents", "harnesses", "openclaw", "foundations"]);
+const PILLARS = z.enum(["agents", "harnesses", "openclaw"]);
 
 const server = new McpServer({
   name: "edu-runtime",

@@ -1,7 +1,6 @@
 import type { RawEvalResponse } from './output-parser.js';
 import type { SubmissionEvaluation, RubricSlotResult } from '../../domain/learner/SubmissionEvaluation.js';
-
-const REQUIRED_SLOTS = ['definition', 'importance', 'relation', 'example', 'boundary'] as const;
+import { REQUIRED_SLOTS } from '../../domain/content/constants.js';
 const LOW_CONFIDENCE_THRESHOLD = 0.5;
 
 /**

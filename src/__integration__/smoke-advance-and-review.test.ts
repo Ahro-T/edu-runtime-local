@@ -1,7 +1,7 @@
 /**
  * Smoke test 2: pass node -> advance -> schedule review -> verify
  *
- * Uses real Postgres (Testcontainers) + real ObsidianContentRepository + mocked vLLM engine.
+ * Uses real Postgres (Testcontainers) + real ObsidianContentRepository + mocked Ollama engine.
  */
 import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql';
@@ -12,6 +12,7 @@ import * as schema from '../adapters/db/schema.js';
 import { DrizzleLearnerStateStore } from '../adapters/db/DrizzleLearnerStateStore.js';
 import { DrizzleSubmissionStore } from '../adapters/db/DrizzleSubmissionStore.js';
 import { DrizzleLearnerEventStore } from '../adapters/db/DrizzleLearnerEventStore.js';
+import { DrizzleReviewJobStore } from '../adapters/db/DrizzleReviewJobStore.js';
 import { ObsidianContentRepository } from '../adapters/content/obsidian/ObsidianContentRepository.js';
 import type { EvaluationEngine } from '../ports/EvaluationEngine.js';
 import type { SubmissionEvaluation } from '../domain/learner/SubmissionEvaluation.js';
@@ -137,6 +138,7 @@ describe('Smoke: pass node -> advance -> schedule review', () => {
     const stateStore = new DrizzleLearnerStateStore(db as any, logger);
     const submissionStore = new DrizzleSubmissionStore(db as any, logger);
     const eventStore = new DrizzleLearnerEventStore(db as any, logger);
+    const reviewJobStore = new DrizzleReviewJobStore(db as any, logger);
     const contentRepo = new ObsidianContentRepository(VAULT_PATH, logger);
 
     const mockEval: SubmissionEvaluation = {
@@ -159,7 +161,7 @@ describe('Smoke: pass node -> advance -> schedule review', () => {
     const submissionService = new SubmissionService({ learnerStateStore: stateStore, learnerEventStore: eventStore, submissionStore, contentRepository: contentRepo, logger });
     const evaluationService = new EvaluationService({ learnerStateStore: stateStore, learnerEventStore: eventStore, submissionStore, contentRepository: contentRepo, evaluationEngine: evalEngine, logger });
     const advancementService = new AdvancementService({ learnerStateStore: stateStore, learnerEventStore: eventStore, contentRepository: contentRepo, logger });
-    const reviewService = new ReviewService({ learnerStateStore: stateStore, learnerEventStore: eventStore, logger });
+    const reviewService = new ReviewService({ learnerStateStore: stateStore, learnerEventStore: eventStore, reviewJobStore, logger });
 
     // 1. Create learner and session
     const learner = await learnerService.upsertLearner('discord-smoke-2');
@@ -197,7 +199,7 @@ describe('Smoke: pass node -> advance -> schedule review', () => {
     expect(reviewJob.nodeId).toBe(firstNodeId);
 
     // 5. Verify pending jobs contain our review
-    const pendingJobs = await eventStore.getPendingJobs(learner.id);
+    const pendingJobs = await reviewJobStore.getPendingJobs(learner.id);
     const our = pendingJobs.find((j) => j.id === reviewJob.id);
     expect(our).toBeDefined();
     expect(our!.jobType).toBe('review');

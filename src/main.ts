@@ -16,9 +16,9 @@ async function main() {
     logger,
   });
 
-  // Content validation startup check
-  const contentRepo = new ObsidianContentRepository(config.VAULT_PATH, logger);
-  const validationErrors = await contentRepo.validateContent();
+  // Content repository — single instance shared with composition root
+  const contentRepository = new ObsidianContentRepository(config.VAULT_PATH, logger);
+  const validationErrors = await contentRepository.validateContent();
   if (validationErrors.length > 0) {
     logger.error({ errors: validationErrors }, 'Content validation failed on startup');
     process.exit(1);
@@ -28,7 +28,7 @@ async function main() {
   // Build composition root
   const { routes } = buildCompositionRoot({
     db,
-    vaultPath: config.VAULT_PATH,
+    contentRepository,
     ollamaUrl: config.OLLAMA_URL,
     ollamaModel: config.OLLAMA_MODEL,
     logger,

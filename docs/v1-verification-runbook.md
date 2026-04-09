@@ -14,7 +14,7 @@ cp .env.example .env
 # Edit .env and fill in:
 #   DISCORD_TOKEN=<your bot token from Discord Developer Portal>
 #   DISCORD_GUILD_ID=<your guild/server ID>
-# Leave DATABASE_URL, VAULT_PATH, VLLM_URL, LOG_LEVEL, PORT as-is for local Docker Compose
+# Leave DATABASE_URL, VAULT_PATH, OLLAMA_URL, LOG_LEVEL, PORT as-is for local Docker Compose
 
 docker compose up -d
 docker compose logs -f app
@@ -45,11 +45,11 @@ curl -s http://localhost:3000/health | jq .
 {
   "status": "ok",
   "postgres": true,
-  "vllm": false,
+  "ollama": false,
   "contentValid": true
 }
 ```
-(`vllm: false` is expected unless a GPU host running vLLM is configured. The system operates in degraded eval mode without it.)
+(`ollama: false` is expected unless Ollama (Gemma 4 E2B)가 실행 중인 GPU 호스트가 설정되어 있지 않으면 정상입니다. 시스템은 평가 없이 degraded 모드로 동작합니다.)
 
 **What failure looks like:**
 - `Connection refused` — app container not started; check `docker compose ps` and `docker compose logs app`
@@ -131,8 +131,8 @@ human oversight for consequential decisions.
 
 **Expected output:**
 - Bot acknowledges the submission: e.g., "Answer received. Evaluating..." or similar
-- If vLLM is available: evaluation begins immediately
-- If vLLM is unavailable (degraded mode): bot responds with "evaluation temporarily unavailable, your answer has been saved"
+- If Ollama is available: evaluation begins immediately
+- If Ollama is unavailable (degraded mode): bot responds with "evaluation temporarily unavailable, your answer has been saved"
 
 **What failure looks like:**
 - Message is ignored — message handler not detecting study channel context; check `docker compose logs app` for `messageCreate` events
@@ -144,9 +144,9 @@ human oversight for consequential decisions.
 ## Step 7: Receive Evaluation Feedback
 
 **What to do:**
-Wait for the bot to respond after submission (5-30 seconds if vLLM is available).
+Wait for the bot to respond after submission (5-30 seconds if Ollama is available).
 
-For degraded mode testing (no vLLM), skip to Step 11 and return here after.
+For degraded mode testing (no Ollama), skip to Step 11 and return here after.
 
 **Expected output (pass):**
 ```
@@ -176,8 +176,8 @@ Next steps: Review the node explanation and try again.
 ```
 
 **What failure looks like:**
-- No response after 60 seconds with vLLM running — check `docker compose logs app` for vLLM timeout errors; verify `VLLM_URL` is reachable from the app container
-- `EVALUATION_UNAVAILABLE` in logs when vLLM should be up — check vLLM container health
+- No response after 60 seconds with Ollama running — check `docker compose logs app` for Ollama timeout errors; verify `OLLAMA_URL` is reachable from the app container
+- `EVALUATION_UNAVAILABLE` in logs when Ollama should be up — check Ollama container health
 - Malformed evaluation (missing slots) — guardrails should catch this; check logs for guardrails warnings
 
 ---
@@ -256,13 +256,13 @@ Then in Discord:
 
 ---
 
-## Step 11: Degraded Mode — vLLM Unavailable
+## Step 11: Degraded Mode — Ollama Unavailable
 
 **What to do:**
-Simulate vLLM being unreachable by editing `.env`:
+Simulate Ollama being unreachable by editing `.env`:
 ```bash
-# In .env, change VLLM_URL to an unreachable address:
-VLLM_URL=http://localhost:19999
+# In .env, change OLLAMA_URL to an unreachable address:
+OLLAMA_URL=http://localhost:19999
 docker compose restart app
 ```
 
@@ -270,7 +270,7 @@ Then submit a free-text answer in the study channel.
 
 **Expected output:**
 - Bot responds: "Evaluation is temporarily unavailable. Your answer has been saved and will be evaluated when the service is restored."
-- Health check shows: `{"status": "degraded", "vllm": false, ...}`
+- Health check shows: `{"status": "degraded", "ollama": false, ...}`
 - No state transition occurs (node stays in `studying` status)
 - Submission IS persisted in the database
 
@@ -282,9 +282,9 @@ docker compose exec postgres psql -U postgres -d edu_runtime \
 
 **Expected output:** Row appears for your recent submission.
 
-Restore vLLM and re-evaluate:
+Restore Ollama and re-evaluate:
 ```bash
-# Restore VLLM_URL in .env, then:
+# Restore OLLAMA_URL in .env, then:
 docker compose restart app
 # Submit the answer again in Discord
 ```
@@ -292,9 +292,10 @@ docker compose restart app
 **Expected output:** Bot evaluates and returns pass/fail/remediation feedback.
 
 **What failure looks like:**
-- App crashes when vLLM unreachable — `degraded-mode.ts` not handling connection errors; check logs
+- App crashes when Ollama unreachable — `degraded-mode.ts` not handling connection errors; check logs
 - Submission not saved — `SubmissionStore` write failed before evaluation; check DB logs
 - State transition occurs even in degraded mode — `EvaluationService` not checking `isAvailable()`
+
 
 ---
 

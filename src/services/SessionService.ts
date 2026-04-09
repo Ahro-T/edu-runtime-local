@@ -56,34 +56,8 @@ export class SessionService {
       throw new AppError('NODE_NOT_FOUND', `No nodes found for pillar: ${pillar}`);
     }
 
-    // Start with the first node (no prerequisites)
-    const rootNode = nodes.find((n) => {
-      // A root node has no prerequisites in the graph
-      return true; // will use first node sorted by prereq chain
-    }) ?? nodes[0];
-
-    // Find node with no prerequisites (entry point)
-    let entryNode = nodes[0];
-    const allPrereqIds = new Set<string>();
-    for (const node of nodes) {
-      const prereqs = await this.content.getPrerequisites(node.id);
-      // nodes that ARE prerequisites of others are not entry points
-      for (const p of prereqs) allPrereqIds.add(node.id);
-    }
-
-    // Actually: find node that is NOT a prerequisite of anything = entry point
-    // Simpler: find node whose id doesn't appear as a prereq target
-    // Entry node = has no prerequisites itself
-    const nodesWithPrereqs = new Set<string>();
-    for (const node of nodes) {
-      const prereqs = await this.content.getPrerequisites(node.id);
-      if (prereqs.length > 0) nodesWithPrereqs.add(node.id);
-    }
-    entryNode = nodes.find((n) => !nodesWithPrereqs.has(n.id)) ?? nodes[0];
-
-    if (!entryNode) {
-      throw new AppError('NODE_NOT_FOUND', `No entry node found for pillar: ${pillar}`);
-    }
+    // Entry node = has no prerequisites (nodes.length > 0 guaranteed above)
+    const entryNode = nodes.find((n) => n.prerequisites.length === 0) ?? nodes[0]!;
 
     // Apply state machine: null -> active
     transitionSession(null, 'start');

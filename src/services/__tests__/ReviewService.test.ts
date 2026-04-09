@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ReviewService } from '../ReviewService.js';
 import type { LearnerStateStore } from '../../ports/LearnerStateStore.js';
 import type { LearnerEventStore } from '../../ports/LearnerEventStore.js';
+import type { ReviewJobStore } from '../../ports/ReviewJobStore.js';
 import type { Learner } from '../../domain/learner/Learner.js';
 import type { NodeState } from '../../domain/learner/NodeState.js';
 import type { ReviewJob } from '../../domain/learner/ReviewJob.js';
@@ -49,12 +50,15 @@ function makeStores() {
     appendEvent: vi.fn(async (e) => e),
     getEventsForLearner: vi.fn(async () => []),
     getEventsForSession: vi.fn(async () => []),
+  };
+
+  const reviewJobStore: ReviewJobStore = {
     createReviewJob: vi.fn(async (j) => j),
     getPendingJobs: vi.fn(async () => []),
     updateJobStatus: vi.fn(async (id, status) => ({ id, learnerId: '', nodeId: '', jobType: 'review' as const, status, scheduledFor: new Date(), payload: {} })),
   };
 
-  return { stateStore, eventStore };
+  return { stateStore, eventStore, reviewJobStore };
 }
 
 describe('ReviewService', () => {
@@ -66,6 +70,7 @@ describe('ReviewService', () => {
     service = new ReviewService({
       learnerStateStore: stores.stateStore,
       learnerEventStore: stores.eventStore,
+      reviewJobStore: stores.reviewJobStore,
       logger,
     });
   });
@@ -75,7 +80,7 @@ describe('ReviewService', () => {
     expect(job.learnerId).toBe('learner-1');
     expect(job.nodeId).toBe('node-1');
     expect(job.status).toBe('pending');
-    expect(stores.eventStore.createReviewJob).toHaveBeenCalledOnce();
+    expect(stores.reviewJobStore.createReviewJob).toHaveBeenCalledOnce();
   });
 
   it('emits review_scheduled event', async () => {
@@ -101,7 +106,7 @@ describe('ReviewService', () => {
       id: 'job-1', learnerId: 'learner-1', nodeId: 'node-1',
       jobType: 'review', status: 'pending', scheduledFor: new Date(), payload: {},
     };
-    vi.mocked(stores.eventStore.getPendingJobs).mockResolvedValue([existingJob]);
+    vi.mocked(stores.reviewJobStore.getPendingJobs).mockResolvedValue([existingJob]);
     await expect(service.scheduleReview('learner-1', 'node-1')).rejects.toMatchObject({ code: 'REVIEW_JOB_CONFLICT' });
   });
 

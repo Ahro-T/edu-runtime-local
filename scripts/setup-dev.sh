@@ -37,9 +37,13 @@ echo ""
 echo "[setup] Creating .env — press Enter to use default"
 echo ""
 
-printf "VLLM_URL [http://localhost:8000]: "
-read vllm_url
-vllm_url="${vllm_url:-http://localhost:8000}"
+printf "OLLAMA_URL [http://ollama:11434]: "
+read ollama_url
+ollama_url="${ollama_url:-http://ollama:11434}"
+
+printf "OLLAMA_MODEL [gemma4:e2b]: "
+read ollama_model
+ollama_model="${ollama_model:-gemma4:e2b}"
 
 printf "Discord bot token (skip if not using Discord): "
 read discord_token
@@ -49,23 +53,14 @@ printf "Discord guild ID (skip if not using Discord): "
 read discord_guild
 discord_guild="${discord_guild:-}"
 
-printf "Cloudflare Client ID (for vLLM auth, skip if not using): "
-read cf_client_id
-cf_client_id="${cf_client_id:-}"
-
-printf "Cloudflare Client Secret (skip if not using): "
-read cf_client_secret
-cf_client_secret="${cf_client_secret:-}"
-
 printf "LOG_LEVEL [info]: "
 read log_level
 log_level="${log_level:-info}"
 
 cat > .env << EOF
 DATABASE_URL=postgresql://postgres:postgres@postgres:5432/edu_runtime
-VLLM_URL=${vllm_url}
-CF_CLIENT_ID=${cf_client_id}
-CF_CLIENT_SECRET=${cf_client_secret}
+OLLAMA_URL=${ollama_url}
+OLLAMA_MODEL=${ollama_model}
 VAULT_PATH=/app/wiki-vault
 OPENCLAW_DISCORD_TOKEN=${discord_token}
 OPENCLAW_DISCORD_GUILD_ID=${discord_guild}

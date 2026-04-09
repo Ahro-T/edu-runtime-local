@@ -1,7 +1,7 @@
 /**
- * Smoke test 3: submit with vLLM down -> verify submission persisted, no state transition
+ * Smoke test 3: submit with Ollama down -> verify submission persisted, no state transition
  *
- * Uses real Postgres (Testcontainers) + real ObsidianContentRepository + mocked vLLM (unavailable).
+ * Uses real Postgres (Testcontainers) + real ObsidianContentRepository + mocked Ollama (unavailable).
  */
 import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql';
@@ -128,15 +128,15 @@ afterAll(async () => {
   await container.stop();
 }, 30000);
 
-describe('Smoke: degraded mode — vLLM down', () => {
-  it('persists submission but does not transition NodeState when vLLM is unavailable', async () => {
+describe('Smoke: degraded mode — Ollama down', () => {
+  it('persists submission but does not transition NodeState when Ollama is unavailable', async () => {
     // --- Wire up stores ---
     const stateStore = new DrizzleLearnerStateStore(db as any, logger);
     const submissionStore = new DrizzleSubmissionStore(db as any, logger);
     const eventStore = new DrizzleLearnerEventStore(db as any, logger);
     const contentRepo = new ObsidianContentRepository(VAULT_PATH, logger);
 
-    // vLLM is DOWN
+    // Ollama is DOWN
     const unavailableEngine: EvaluationEngine = {
       evaluate: vi.fn(async () => { throw new Error('Connection refused'); }),
       isAvailable: vi.fn(async () => false),
@@ -153,7 +153,7 @@ describe('Smoke: degraded mode — vLLM down', () => {
     const session = await sessionService.startOrResume(learner.id, 'agents', 'channel-smoke-3');
     const nodeId = session.currentNodeId!;
 
-    // 2. Record submission — should succeed even with vLLM down
+    // 2. Record submission — should succeed even with Ollama down
     const submission = await submissionService.recordSubmission(
       learner.id, session.id, nodeId,
       'My answer about the agent core loop.',

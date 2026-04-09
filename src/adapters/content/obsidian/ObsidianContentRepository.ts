@@ -7,6 +7,16 @@ import type { ContentRepository, ContentSnapshot } from '../../../ports/ContentR
 import { scanNodeFiles, scanTemplateFiles } from './vault-scanner.js';
 import { parseNodeFile, parseTemplateFile } from './frontmatter-parser.js';
 import { validateVault } from './validators.js';
+import { REQUIRED_SLOTS } from '../../../domain/content/constants.js';
+
+/** Extract a slot name from a rubric rule description string, e.g. "definition slot is missing" → "definition" */
+function extractSlot(description: string): string {
+  const lower = description.toLowerCase();
+  for (const slot of REQUIRED_SLOTS) {
+    if (lower.includes(slot)) return slot;
+  }
+  return '';
+}
 
 export class ObsidianContentRepository implements ContentRepository {
   private nodes: Map<string, KnowledgeNode> = new Map();
@@ -18,6 +28,14 @@ export class ObsidianContentRepository implements ContentRepository {
     private readonly vaultPath: string,
     private readonly logger: Logger,
   ) {}
+
+  reload(): void {
+    this.nodes.clear();
+    this.templates.clear();
+    this.templatesByNodeId.clear();
+    this.loaded = false;
+    this.logger.info('Content cache invalidated — will reload on next access');
+  }
 
   private async load(): Promise<void> {
     if (this.loaded) return;
@@ -63,9 +81,9 @@ export class ObsidianContentRepository implements ContentRepository {
           instructions: fm.instructions,
           requiredSlots: fm.requiredSlots,
           rubric: {
-            passRules: fm.rubric.passRules.map(desc => ({ slot: '', description: desc })),
-            failRules: fm.rubric.failRules.map(desc => ({ slot: '', description: desc })),
-            remediationRules: fm.rubric.remediationRules.map(desc => ({ slot: '', description: desc })),
+            passRules: fm.rubric.passRules.map(desc => ({ slot: extractSlot(desc), description: desc })),
+            failRules: fm.rubric.failRules.map(desc => ({ slot: extractSlot(desc), description: desc })),
+            remediationRules: fm.rubric.remediationRules.map(desc => ({ slot: extractSlot(desc), description: desc })),
           },
         };
         this.templates.set(tpl.id, tpl);

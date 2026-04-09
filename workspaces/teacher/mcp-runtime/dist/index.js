@@ -20,7 +20,7 @@ function ok(result) {
 function err(message) {
     return { content: [{ type: "text", text: message }], isError: true };
 }
-const PILLARS = z.enum(["agents", "harnesses", "openclaw", "foundations"]);
+const PILLARS = z.enum(["agents", "harnesses", "openclaw"]);
 const server = new McpServer({
     name: "edu-runtime",
     version: "0.1.0",

@@ -46,28 +46,24 @@ export class AdvancementService {
     const currentNode = await this.content.getNodeById(session.currentNodeId);
     if (!currentNode) throw new AppError('NODE_NOT_FOUND', `Node not found: ${session.currentNodeId}`);
 
-    // Get all nodes in pillar and find which ones have currentNodeId as a prerequisite
-    const allNodes = await this.content.listNodesByPillar(pillar);
+    // Get all nodes and all learner states in single queries
+    const [allNodes, allStates] = await Promise.all([
+      this.content.listNodesByPillar(pillar),
+      this.store.getNodeStatesForLearner(learnerId),
+    ]);
 
-    // Find next node: a node whose prerequisites include the current node
-    let nextNode: KnowledgeNode | null = null;
-    for (const candidate of allNodes) {
-      if (candidate.id === session.currentNodeId) continue;
-      const prereqs = await this.content.getPrerequisites(candidate.id);
-      if (prereqs.some((p) => p.id === session.currentNodeId)) {
-        // Check if all prerequisites of candidate are passed
-        const allPrereqsPassed = await Promise.all(
-          prereqs.map(async (p) => {
-            const state = await this.store.getNodeState(learnerId, p.id);
-            return state?.status === 'passed' || state?.status === 'mastered';
-          }),
-        );
-        if (allPrereqsPassed.every(Boolean)) {
-          nextNode = candidate;
-          break;
-        }
-      }
-    }
+    const passedIds = new Set(
+      allStates
+        .filter((s) => s.status === 'passed' || s.status === 'mastered')
+        .map((s) => s.nodeId),
+    );
+
+    // Find next node: a node whose prerequisites include the current node and are all passed
+    const nextNode = allNodes.find((candidate) => {
+      if (candidate.id === session.currentNodeId) return false;
+      if (!candidate.prerequisites.includes(session.currentNodeId!)) return false;
+      return candidate.prerequisites.every((pid) => passedIds.has(pid));
+    }) ?? null;
 
     if (!nextNode) {
       // Pillar completed
@@ -75,7 +71,7 @@ export class AdvancementService {
       await this.store.updateSessionStatus(session.id, 'completed', null);
       await this.eventStore.appendEvent({
         id: randomUUID(),
-        type: 'session_started', // no pillar-completed event type; use session_started as proxy
+        type: 'pillar_completed',
         learnerId,
         sessionId: session.id,
         nodeId: session.currentNodeId,

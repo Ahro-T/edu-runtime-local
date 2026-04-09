@@ -4,7 +4,7 @@ export interface DegradedModeResult {
 }
 
 /**
- * Returns a degraded-mode sentinel when vLLM is unreachable.
+ * Returns a degraded-mode sentinel when Ollama is unreachable.
  * The caller is responsible for preserving the submission for later retry.
  * Never silently passes — always signals unavailability.
  */

@@ -29,9 +29,6 @@ function makeLearnerEventStore(overrides: Partial<LearnerEventStore> = {}): Lear
     appendEvent: vi.fn(async (e) => e),
     getEventsForLearner: vi.fn(async () => []),
     getEventsForSession: vi.fn(async () => []),
-    createReviewJob: vi.fn(async (j) => j),
-    getPendingJobs: vi.fn(async () => []),
-    updateJobStatus: vi.fn(async (id, status) => ({ id, learnerId: '', nodeId: '', jobType: 'review', status, scheduledFor: new Date(), payload: {} })),
     ...overrides,
   };
 }
@@ -67,7 +64,8 @@ describe('LearnerService', () => {
     await service.upsertLearner('discord-456');
     expect(eventStore.appendEvent).toHaveBeenCalledOnce();
     const call = vi.mocked(eventStore.appendEvent).mock.calls[0][0];
-    expect(call.payload).toMatchObject({ event: 'learner-created', discordUserId: 'discord-456' });
+    expect(call.type).toBe('learner_created');
+    expect(call.payload).toMatchObject({ discordUserId: 'discord-456' });
   });
 
   it('emits an event after updating learner', async () => {
@@ -76,6 +74,6 @@ describe('LearnerService', () => {
 
     await service.upsertLearner('discord-789');
     const call = vi.mocked(eventStore.appendEvent).mock.calls[0][0];
-    expect(call.payload).toMatchObject({ event: 'learner-updated' });
+    expect(call.type).toBe('learner_updated');
   });
 });

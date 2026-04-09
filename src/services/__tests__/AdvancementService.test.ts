@@ -63,7 +63,7 @@ function makeStateStore(overrides: Partial<LearnerStateStore> = {}): LearnerStat
     updateSessionStatus: vi.fn(async (id, status, nodeId) => makeSession({ id, status, currentNodeId: nodeId ?? null })),
     getNodeState: vi.fn(async (learnerId, nodeId) => makeNodeState(nodeId, 'passed')),
     upsertNodeState: vi.fn(async (ns) => ns),
-    getNodeStatesForLearner: vi.fn(async () => []),
+    getNodeStatesForLearner: vi.fn(async () => [makeNodeState('node-1', 'passed')]),
     getNodeStatesForSession: vi.fn(async () => []),
     ...overrides,
   };
@@ -74,9 +74,6 @@ function makeEventStore(overrides: Partial<LearnerEventStore> = {}): LearnerEven
     appendEvent: vi.fn(async (e) => e),
     getEventsForLearner: vi.fn(async () => []),
     getEventsForSession: vi.fn(async () => []),
-    createReviewJob: vi.fn(async (j) => j),
-    getPendingJobs: vi.fn(async () => []),
-    updateJobStatus: vi.fn(async (id, status) => ({ id, learnerId: '', nodeId: '', jobType: 'review' as const, status, scheduledFor: new Date(), payload: {} })),
     ...overrides,
   };
 }
@@ -86,8 +83,8 @@ function makeContentRepo(overrides: Partial<ContentRepository> = {}): ContentRep
     getNodeById: vi.fn(async (id) => makeNode(id)),
     getTemplateById: vi.fn(async () => null),
     getTemplateByNodeId: vi.fn(async () => null),
-    listNodesByPillar: vi.fn(async () => [makeNode('node-1'), makeNode('node-2')]),
-    getPrerequisites: vi.fn(async (id) => id === 'node-2' ? [makeNode('node-1')] : []),
+    listNodesByPillar: vi.fn(async () => [makeNode('node-1'), { ...makeNode('node-2'), prerequisites: ['node-1'] }]),
+    getPrerequisites: vi.fn(async () => []),
     getRelatedNodes: vi.fn(async () => []),
     validateContent: vi.fn(async () => []),
     exportSnapshot: vi.fn(async () => ({ nodes: [], templates: [], relations: [], exportedAt: new Date() })),
@@ -123,7 +120,6 @@ describe('AdvancementService', () => {
   it('marks pillar completed when no next node exists', async () => {
     // node-1 has no successors
     vi.mocked(contentRepo.listNodesByPillar).mockResolvedValue([makeNode('node-1')]);
-    vi.mocked(contentRepo.getPrerequisites).mockResolvedValue([]);
 
     const result = await service.advanceNode('learner-1', 'agents');
     expect(result.pillarCompleted).toBe(true);
@@ -138,7 +134,9 @@ describe('AdvancementService', () => {
   });
 
   it('initializes NodeState for next node if not exists', async () => {
-    vi.mocked(stateStore.getNodeState).mockImplementation(async (learnerId, nodeId) => {
+    // getNodeStatesForLearner returns only node-1 state, so node-2 is missing
+    vi.mocked(stateStore.getNodeStatesForLearner).mockResolvedValue([makeNodeState('node-1', 'passed')]);
+    vi.mocked(stateStore.getNodeState).mockImplementation(async (_learnerId, nodeId) => {
       if (nodeId === 'node-2') return null;
       return makeNodeState(nodeId);
     });

@@ -1,8 +1,7 @@
 import type { Submission } from '../../domain/learner/Submission.js';
 import type { KnowledgeNode } from '../../domain/content/KnowledgeNode.js';
 import type { AssessmentTemplate } from '../../domain/content/AssessmentTemplate.js';
-
-const REQUIRED_SLOTS = ['definition', 'importance', 'relation', 'example', 'boundary'] as const;
+import { REQUIRED_SLOTS } from '../../domain/content/constants.js';
 
 export function buildEvaluationPrompt(
   submission: Submission,

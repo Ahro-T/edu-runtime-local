@@ -14,9 +14,10 @@ export class ParseError extends Error {
   }
 }
 
+import { REQUIRED_SLOTS } from '../../domain/content/constants.js';
+
 const REQUIRED_FIELDS = ['result', 'score', 'rubricSlots', 'feedback', 'missingPoints', 'confidence'] as const;
 const VALID_RESULTS = new Set(['pass', 'fail', 'remediation']);
-const REQUIRED_SLOTS = ['definition', 'importance', 'relation', 'example', 'boundary'] as const;
 
 export function parseEvalOutput(content: string): RawEvalResponse {
   // Strip markdown code fences if present

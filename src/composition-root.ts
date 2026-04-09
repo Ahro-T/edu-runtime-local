@@ -3,6 +3,7 @@ import type { DbClient } from './adapters/db/connection.js';
 import { DrizzleLearnerStateStore } from './adapters/db/DrizzleLearnerStateStore.js';
 import { DrizzleSubmissionStore } from './adapters/db/DrizzleSubmissionStore.js';
 import { DrizzleLearnerEventStore } from './adapters/db/DrizzleLearnerEventStore.js';
+import { DrizzleReviewJobStore } from './adapters/db/DrizzleReviewJobStore.js';
 import { ObsidianContentRepository } from './adapters/content/obsidian/ObsidianContentRepository.js';
 import { OllamaEvaluationEngine } from './adapters/evaluation/OllamaEvaluationEngine.js';
 import { LearnerService } from './services/LearnerService.js';
@@ -23,7 +24,7 @@ import type { ApiRoutes } from './api/server.js';
 
 export interface CompositionRootOptions {
   db: DbClient;
-  vaultPath: string;
+  contentRepository: ObsidianContentRepository;
   ollamaUrl: string;
   ollamaModel?: string | undefined;
   logger: Logger;
@@ -44,13 +45,13 @@ export interface CompositionRoot {
 }
 
 export function buildCompositionRoot(opts: CompositionRootOptions): CompositionRoot {
-  const { db, vaultPath, ollamaUrl, ollamaModel, logger } = opts;
+  const { db, contentRepository, ollamaUrl, ollamaModel, logger } = opts;
 
   // Adapters
   const learnerStateStore = new DrizzleLearnerStateStore(db, logger);
   const submissionStore = new DrizzleSubmissionStore(db, logger);
   const learnerEventStore = new DrizzleLearnerEventStore(db, logger);
-  const contentRepository = new ObsidianContentRepository(vaultPath, logger);
+  const reviewJobStore = new DrizzleReviewJobStore(db, logger);
   const evaluationEngine = new OllamaEvaluationEngine({ ollamaUrl, model: ollamaModel });
 
   // Services
@@ -60,8 +61,8 @@ export function buildCompositionRoot(opts: CompositionRootOptions): CompositionR
   const submissionService = new SubmissionService({ learnerStateStore, learnerEventStore, submissionStore, contentRepository, logger });
   const evaluationService = new EvaluationService({ learnerStateStore, learnerEventStore, submissionStore, contentRepository, evaluationEngine, logger });
   const advancementService = new AdvancementService({ learnerStateStore, learnerEventStore, contentRepository, logger });
-  const reviewService = new ReviewService({ learnerStateStore, learnerEventStore, logger });
-  const dashboardService = new DashboardService({ learnerStateStore, learnerEventStore, submissionStore, contentRepository, logger });
+  const reviewService = new ReviewService({ learnerStateStore, learnerEventStore, reviewJobStore, logger });
+  const dashboardService = new DashboardService({ learnerStateStore, reviewJobStore, submissionStore, logger });
 
   // Routes
   const routes: ApiRoutes = {

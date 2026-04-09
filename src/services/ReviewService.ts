@@ -2,12 +2,14 @@ import { randomUUID } from 'crypto';
 import type { Logger } from 'pino';
 import type { LearnerStateStore } from '../ports/LearnerStateStore.js';
 import type { LearnerEventStore } from '../ports/LearnerEventStore.js';
+import type { ReviewJobStore } from '../ports/ReviewJobStore.js';
 import type { ReviewJob } from '../domain/learner/ReviewJob.js';
 import { AppError } from '../domain/errors.js';
 
 export interface ReviewServiceDeps {
   learnerStateStore: LearnerStateStore;
   learnerEventStore: LearnerEventStore;
+  reviewJobStore: ReviewJobStore;
   logger: Logger;
 }
 
@@ -19,11 +21,13 @@ export interface ScheduleReviewOptions {
 export class ReviewService {
   private readonly store: LearnerStateStore;
   private readonly eventStore: LearnerEventStore;
+  private readonly reviewJobStore: ReviewJobStore;
   private readonly logger: Logger;
 
-  constructor({ learnerStateStore, learnerEventStore, logger }: ReviewServiceDeps) {
+  constructor({ learnerStateStore, learnerEventStore, reviewJobStore, logger }: ReviewServiceDeps) {
     this.store = learnerStateStore;
     this.eventStore = learnerEventStore;
+    this.reviewJobStore = reviewJobStore;
     this.logger = logger.child({ service: 'ReviewService' });
   }
 
@@ -39,7 +43,7 @@ export class ReviewService {
     if (!learner) throw new AppError('LEARNER_NOT_FOUND', `Learner not found: ${learnerId}`);
 
     // Check for existing pending job (conflict check)
-    const pending = await this.eventStore.getPendingJobs(learnerId);
+    const pending = await this.reviewJobStore.getPendingJobs(learnerId);
     const conflict = pending.find((j) => j.nodeId === nodeId && j.status === 'pending');
     if (conflict) {
       throw new AppError('REVIEW_JOB_CONFLICT', `Review job already exists for learner ${learnerId} and node ${nodeId}`);
@@ -58,7 +62,7 @@ export class ReviewService {
       payload: {},
     };
 
-    const saved = await this.eventStore.createReviewJob(job);
+    const saved = await this.reviewJobStore.createReviewJob(job);
 
     // Update NodeState with nextReviewAt
     const nodeState = await this.store.getNodeState(learnerId, nodeId);

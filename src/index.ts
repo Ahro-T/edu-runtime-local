@@ -14,3 +14,4 @@ export * from './domain/learner/SubmissionEvaluation.js';
 export * from './domain/learner/ReviewJob.js';
 export * from './domain/learner/LearningEvent.js';
 export * from './domain/learner/state-machines.js';
+export * from './domain/content/constants.js';

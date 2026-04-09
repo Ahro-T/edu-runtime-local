@@ -68,9 +68,6 @@ function makeEventStore(overrides: Partial<LearnerEventStore> = {}): LearnerEven
     appendEvent: vi.fn(async (e) => e),
     getEventsForLearner: vi.fn(async () => []),
     getEventsForSession: vi.fn(async () => []),
-    createReviewJob: vi.fn(async (j) => j),
-    getPendingJobs: vi.fn(async () => []),
-    updateJobStatus: vi.fn(async (id, status) => ({ id, learnerId: '', nodeId: '', jobType: 'review' as const, status, scheduledFor: new Date(), payload: {} })),
     ...overrides,
   };
 }
@@ -121,7 +118,6 @@ describe('SessionService', () => {
   it('creates new session when no active session exists', async () => {
     vi.mocked(stateStore.getActiveSession).mockResolvedValue(null);
     vi.mocked(contentRepo.listNodesByPillar).mockResolvedValue([makeNode('node-1')]);
-    vi.mocked(contentRepo.getPrerequisites).mockResolvedValue([]);
 
     const session = await service.startOrResume('learner-1', 'agents');
     expect(stateStore.createSession).toHaveBeenCalledOnce();
@@ -137,13 +133,10 @@ describe('SessionService', () => {
 
   it('selects entry node (one with no prerequisites)', async () => {
     const node1 = makeNode('node-1');
-    const node2 = makeNode('node-2');
+    const node2 = { ...makeNode('node-2'), prerequisites: ['node-1'] };
     vi.mocked(stateStore.getActiveSession).mockResolvedValue(null);
-    vi.mocked(contentRepo.listNodesByPillar).mockResolvedValue([node1, node2]);
     // node2 has node1 as prereq — so node1 is the entry point
-    vi.mocked(contentRepo.getPrerequisites).mockImplementation(async (id) =>
-      id === 'node-2' ? [node1] : [],
-    );
+    vi.mocked(contentRepo.listNodesByPillar).mockResolvedValue([node1, node2]);
 
     await service.startOrResume('learner-1', 'agents');
     const createCall = vi.mocked(stateStore.createSession).mock.calls[0][0];

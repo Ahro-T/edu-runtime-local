@@ -1,6 +1,8 @@
 export type NodeStatus = 'unseen' | 'studying' | 'passed' | 'remediation' | 'mastered';
 
-export type MasteryLevel = 'quiz' | 'descriptive' | 'explain' | 'apply';
+import type { MasteryStageTarget } from '../content/types.js';
+
+export type MasteryLevel = MasteryStageTarget;
 
 export interface NodeState {
   id: string;

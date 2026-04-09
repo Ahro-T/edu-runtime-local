@@ -1,7 +1,7 @@
 /**
  * Smoke test 1: upsert learner -> start session -> get node -> submit -> evaluate -> verify NodeState
  *
- * Uses real Postgres (Testcontainers) + real ObsidianContentRepository + mocked vLLM engine.
+ * Uses real Postgres (Testcontainers) + real ObsidianContentRepository + mocked Ollama engine.
  */
 import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql';
@@ -137,7 +137,7 @@ describe('Smoke: start -> study -> submit -> evaluate', () => {
     const eventStore = new DrizzleLearnerEventStore(db as any, logger);
     const contentRepo = new ObsidianContentRepository(VAULT_PATH, logger);
 
-    // Mock vLLM engine returning "pass"
+    // Mock Ollama engine returning "pass"
     const mockEval: SubmissionEvaluation = {
       submissionId: '',
       evaluatorModel: 'mock-model',

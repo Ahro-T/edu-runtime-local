@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { eq, and, count } from 'drizzle-orm';
 import type { DbClient } from './connection.js';
 import { submissions, submissionEvaluations } from './schema.js';
 import type { SubmissionStore } from '../../ports/SubmissionStore.js';
@@ -6,7 +6,6 @@ import type { Submission } from '../../domain/learner/Submission.js';
 import type { SubmissionEvaluation, RubricSlotResult } from '../../domain/learner/SubmissionEvaluation.js';
 import type { Logger } from '../../logger.js';
 import { AppError } from '../../domain/errors.js';
-import { and } from 'drizzle-orm';
 
 export class DrizzleSubmissionStore implements SubmissionStore {
   constructor(
@@ -67,6 +66,14 @@ export class DrizzleSubmissionStore implements SubmissionStore {
       .from(submissionEvaluations)
       .where(eq(submissionEvaluations.submissionId, submissionId));
     return row ? this.mapEvaluation(row) : null;
+  }
+
+  async countSubmissionsForLearner(learnerId: string): Promise<number> {
+    const [row] = await this.db
+      .select({ total: count() })
+      .from(submissions)
+      .where(eq(submissions.learnerId, learnerId));
+    return row?.total ?? 0;
   }
 
   private mapSubmission(row: typeof submissions.$inferSelect): Submission {

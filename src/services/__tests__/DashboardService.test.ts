@@ -1,9 +1,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { DashboardService } from '../DashboardService.js';
 import type { LearnerStateStore } from '../../ports/LearnerStateStore.js';
-import type { LearnerEventStore } from '../../ports/LearnerEventStore.js';
+import type { ReviewJobStore } from '../../ports/ReviewJobStore.js';
 import type { SubmissionStore } from '../../ports/SubmissionStore.js';
-import type { ContentRepository } from '../../ports/ContentRepository.js';
 import type { Learner } from '../../domain/learner/Learner.js';
 import type { LearnerSession } from '../../domain/learner/LearnerSession.js';
 import type { NodeState } from '../../domain/learner/NodeState.js';
@@ -62,11 +61,8 @@ function makeStateStore(overrides: Partial<LearnerStateStore> = {}): LearnerStat
   };
 }
 
-function makeEventStore(overrides: Partial<LearnerEventStore> = {}): LearnerEventStore {
+function makeReviewJobStore(overrides: Partial<ReviewJobStore> = {}): ReviewJobStore {
   return {
-    appendEvent: vi.fn(async (e) => e),
-    getEventsForLearner: vi.fn(async () => []),
-    getEventsForSession: vi.fn(async () => []),
     createReviewJob: vi.fn(async (j) => j),
     getPendingJobs: vi.fn(async () => []),
     updateJobStatus: vi.fn(async (id, status) => ({ id, learnerId: '', nodeId: '', jobType: 'review' as const, status, scheduledFor: new Date(), payload: {} })),
@@ -81,37 +77,22 @@ function makeSubmissionStore(overrides: Partial<SubmissionStore> = {}): Submissi
     getSubmissionsForNode: vi.fn(async () => []),
     createEvaluation: vi.fn(async (e) => e),
     getEvaluationForSubmission: vi.fn(async () => null),
-    ...overrides,
-  };
-}
-
-function makeContentRepo(overrides: Partial<ContentRepository> = {}): ContentRepository {
-  return {
-    getNodeById: vi.fn(async () => null),
-    getTemplateById: vi.fn(async () => null),
-    getTemplateByNodeId: vi.fn(async () => null),
-    listNodesByPillar: vi.fn(async () => []),
-    getPrerequisites: vi.fn(async () => []),
-    getRelatedNodes: vi.fn(async () => []),
-    validateContent: vi.fn(async () => []),
-    exportSnapshot: vi.fn(async () => ({ nodes: [], templates: [], relations: [], exportedAt: new Date() })),
+    countSubmissionsForLearner: vi.fn(async () => 0),
     ...overrides,
   };
 }
 
 describe('DashboardService', () => {
   let stateStore: LearnerStateStore;
-  let eventStore: LearnerEventStore;
+  let reviewJobStore: ReviewJobStore;
   let submissionStore: SubmissionStore;
-  let contentRepo: ContentRepository;
   let service: DashboardService;
 
   beforeEach(() => {
     stateStore = makeStateStore();
-    eventStore = makeEventStore();
+    reviewJobStore = makeReviewJobStore();
     submissionStore = makeSubmissionStore();
-    contentRepo = makeContentRepo();
-    service = new DashboardService({ learnerStateStore: stateStore, learnerEventStore: eventStore, submissionStore, contentRepository: contentRepo, logger });
+    service = new DashboardService({ learnerStateStore: stateStore, reviewJobStore, submissionStore, logger });
   });
 
   it('returns dashboard data for a learner', async () => {
@@ -137,7 +118,7 @@ describe('DashboardService', () => {
   });
 
   it('includes pending reviews', async () => {
-    vi.mocked(eventStore.getPendingJobs).mockResolvedValue([
+    vi.mocked(reviewJobStore.getPendingJobs).mockResolvedValue([
       { id: 'job-1', learnerId: 'learner-1', nodeId: 'node-1', jobType: 'review', status: 'pending', scheduledFor: new Date(), payload: {} },
     ]);
     const dashboard = await service.getDashboard('learner-1');
@@ -145,11 +126,8 @@ describe('DashboardService', () => {
   });
 
   it('counts totalSubmissions from submissionStore', async () => {
-    vi.mocked(submissionStore.getSubmissionsForNode).mockResolvedValue([
-      { id: 'sub-1', learnerId: 'learner-1', sessionId: 'session-1', nodeId: 'node-1', templateId: 'tmpl-1', rawAnswer: 'a', submittedAt: new Date() },
-    ]);
+    vi.mocked(submissionStore.countSubmissionsForLearner).mockResolvedValue(5);
     const dashboard = await service.getDashboard('learner-1');
-    // 2 nodeStates * 1 submission each = 2
-    expect(dashboard.totalSubmissions).toBe(2);
+    expect(dashboard.totalSubmissions).toBe(5);
   });
 });
