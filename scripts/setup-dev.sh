@@ -15,20 +15,60 @@ else
   curl -fsSL https://claude.ai/install.sh | sh
 fi
 
-# Copy .env if not present
-if [ ! -f .env ]; then
-  cp .env.example .env
-  echo "[setup] Created .env from .env.example — edit it with your tokens"
-else
-  echo "[setup] .env already exists"
+# Interactive .env setup
+if [ -f .env ]; then
+  echo "[setup] .env already exists. Overwrite? (y/N)"
+  read -r overwrite
+  if [ "$overwrite" != "y" ] && [ "$overwrite" != "Y" ]; then
+    echo "[setup] Keeping existing .env"
+    echo ""
+    echo "========================================="
+    echo "  Ready!"
+    echo "========================================="
+    echo "  ./scripts/start.sh    — start runtime"
+    echo "  claude                — start coding"
+    echo "  ./scripts/cleanup.sh  — remove everything"
+    echo "========================================="
+    exit 0
+  fi
 fi
 
 echo ""
+echo "[setup] Creating .env — press Enter to use default"
+echo ""
+
+read -rp "VLLM_URL [http://localhost:8000]: " vllm_url
+vllm_url="${vllm_url:-http://localhost:8000}"
+
+read -rp "Discord bot token (skip if not using Discord): " discord_token
+discord_token="${discord_token:-}"
+
+read -rp "Discord guild ID (skip if not using Discord): " discord_guild
+discord_guild="${discord_guild:-}"
+
+read -rp "LOG_LEVEL [info]: " log_level
+log_level="${log_level:-info}"
+
+cat > .env << EOF
+DATABASE_URL=postgresql://postgres:postgres@postgres:5432/edu_runtime
+VLLM_URL=${vllm_url}
+VAULT_PATH=/app/wiki-vault
+OPENCLAW_DISCORD_TOKEN=${discord_token}
+OPENCLAW_DISCORD_GUILD_ID=${discord_guild}
+OPENCLAW_GATEWAY_URL=http://localhost:3100
+OPENCLAW_GATEWAY_PORT=3100
+LOG_LEVEL=${log_level}
+PORT=3000
+EOF
+
+echo ""
+echo "[setup] .env created"
+
+echo ""
 echo "========================================="
-echo "  Ready. Next steps:"
+echo "  Ready!"
 echo "========================================="
-echo "  1. Edit .env with your tokens"
-echo "  2. ./scripts/start.sh    — start runtime"
-echo "  3. claude                — start coding"
-echo "  4. ./scripts/cleanup.sh  — remove everything"
+echo "  ./scripts/start.sh    — start runtime"
+echo "  claude                — start coding"
+echo "  ./scripts/cleanup.sh  — remove everything"
 echo "========================================="
