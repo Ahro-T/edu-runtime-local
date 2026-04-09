@@ -16,10 +16,13 @@ cd "$PROJECT_ROOT"
 docker-compose down -v --remove-orphans 2>/dev/null || true
 docker volume prune -f 2>/dev/null || true
 
-# 2. Remove Claude Code
+# 2. Remove Claude Code (all known paths)
 echo "[cleanup] Removing Claude Code..."
-rm -rf "$HOME/.claude" "$HOME/.config/claude" 2>/dev/null || true
+rm -rf "$HOME/.claude" 2>/dev/null || true
+rm -f "$HOME/.claude.json" 2>/dev/null || true
+rm -rf "$HOME/.config/claude" 2>/dev/null || true
 rm -f "$HOME/.local/bin/claude" 2>/dev/null || true
+rm -rf "$HOME/.local/share/claude" 2>/dev/null || true
 
 # 3. Remove project
 echo "[cleanup] Removing project directory..."
