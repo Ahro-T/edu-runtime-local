@@ -15,3 +15,6 @@ services:
   openclaw:
     ports:
       - "3101:3100"
+    environment:
+      VLLM_URL: ${VLLM_REMOTE_URL:-https://llm.agentic-ai-gist.org}
+      VLLM_MODEL: ${VLLM_REMOTE_MODEL:-google/gemma-4-26B-A4B-it}
