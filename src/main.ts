@@ -30,6 +30,9 @@ async function main() {
     db,
     vaultPath: config.VAULT_PATH,
     vllmUrl: config.VLLM_URL,
+    vllmModel: config.VLLM_MODEL,
+    cfClientId: config.CF_CLIENT_ID,
+    cfClientSecret: config.CF_CLIENT_SECRET,
     logger,
   });
 

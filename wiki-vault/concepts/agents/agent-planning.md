@@ -35,4 +35,5 @@ Planning occurs in the Think phase. It is distinct from the Act phase: planning 
 If planning concepts are unclear, revisit [[agent-tool-use]] to understand what actions are available before reasoning about sequencing them.
 
 ## Backlinks
+- [[agent-tool-use]]
 - [[harness-orchestration]]

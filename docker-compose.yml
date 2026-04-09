@@ -1,12 +1,10 @@
 services:
   postgres:
-    image: postgres:16
+    image: docker.io/library/postgres:16
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: edu_runtime
-    ports:
-      - "5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d edu_runtime"]
       interval: 10s
@@ -19,16 +17,13 @@ services:
       context: .
       dockerfile: Dockerfile
       target: production
-    ports:
-      - "3000:3000"
     env_file:
       - .env
     volumes:
       - ./vault:/app/vault
       - ./wiki-vault:/app/wiki-vault
     depends_on:
-      postgres:
-        condition: service_healthy
+      - postgres
     healthcheck:
       test: ["CMD-SHELL", "node -e \"fetch('http://localhost:3000/health').then(r=>r.ok?process.exit(0):process.exit(1)).catch(()=>process.exit(1))\""]
       interval: 10s
@@ -38,8 +33,6 @@ services:
 
   openclaw:
     image: ghcr.io/openclaw/openclaw:latest
-    ports:
-      - "3100:3100"
     environment:
       DISCORD_TOKEN: ${OPENCLAW_DISCORD_TOKEN}
       DISCORD_GUILD_ID: ${OPENCLAW_DISCORD_GUILD_ID}
@@ -47,8 +40,7 @@ services:
     volumes:
       - ./workspaces/teacher:/workspace
     depends_on:
-      app:
-        condition: service_healthy
+      - app
 
   curriculum-cron:
     build:
@@ -70,18 +62,4 @@ services:
           sleep 21600
         done
 
-  # vllm:
-  #   image: vllm/vllm-openai:latest
-  #   runtime: nvidia
-  #   environment:
-  #     - HUGGING_FACE_HUB_TOKEN=${HUGGING_FACE_HUB_TOKEN}
-  #   command: ["--model", "mistralai/Mistral-7B-Instruct-v0.2"]
-  #   ports:
-  #     - "8000:8000"
-  #   deploy:
-  #     resources:
-  #       reservations:
-  #         devices:
-  #           - driver: nvidia
-  #             count: 1
-  #             capabilities: [gpu]
+

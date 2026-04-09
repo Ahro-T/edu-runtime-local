@@ -25,6 +25,9 @@ export interface CompositionRootOptions {
   db: DbClient;
   vaultPath: string;
   vllmUrl: string;
+  vllmModel?: string | undefined;
+  cfClientId?: string | undefined;
+  cfClientSecret?: string | undefined;
   logger: Logger;
 }
 
@@ -43,14 +46,14 @@ export interface CompositionRoot {
 }
 
 export function buildCompositionRoot(opts: CompositionRootOptions): CompositionRoot {
-  const { db, vaultPath, vllmUrl, logger } = opts;
+  const { db, vaultPath, vllmUrl, vllmModel, cfClientId, cfClientSecret, logger } = opts;
 
   // Adapters
   const learnerStateStore = new DrizzleLearnerStateStore(db, logger);
   const submissionStore = new DrizzleSubmissionStore(db, logger);
   const learnerEventStore = new DrizzleLearnerEventStore(db, logger);
   const contentRepository = new ObsidianContentRepository(vaultPath, logger);
-  const evaluationEngine = new VllmEvaluationEngine({ vllmUrl });
+  const evaluationEngine = new VllmEvaluationEngine({ vllmUrl, model: vllmModel, cfClientId, cfClientSecret });
 
   // Services
   const learnerService = new LearnerService({ learnerStateStore, learnerEventStore, logger });

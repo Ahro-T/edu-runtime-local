@@ -35,4 +35,5 @@ When a worker agent fails, the orchestrator must decide: retry, use a fallback a
 
 ## Backlinks
 - [[agent-planning]]
+- [[harness-tool-registry]]
 - [[openclaw-discord-gateway]]

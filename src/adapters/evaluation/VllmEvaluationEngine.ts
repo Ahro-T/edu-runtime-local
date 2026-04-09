@@ -27,15 +27,21 @@ export class VllmEvaluationEngine implements EvaluationEngine {
   private readonly vllmUrl: string;
   private readonly model: string;
   private readonly timeoutMs: number;
+  private readonly cfClientId?: string;
+  private readonly cfClientSecret?: string;
 
   constructor(options: {
     vllmUrl: string;
-    model?: string;
-    timeoutMs?: number;
+    model?: string | undefined;
+    timeoutMs?: number | undefined;
+    cfClientId?: string | undefined;
+    cfClientSecret?: string | undefined;
   }) {
     this.vllmUrl = options.vllmUrl.replace(/\/$/, '');
     this.model = options.model ?? 'default';
     this.timeoutMs = options.timeoutMs ?? 30_000;
+    this.cfClientId = options.cfClientId;
+    this.cfClientSecret = options.cfClientSecret;
   }
 
   async evaluate(
@@ -79,8 +85,12 @@ export class VllmEvaluationEngine implements EvaluationEngine {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), 5_000);
       try {
+        const headers: Record<string, string> = {};
+        if (this.cfClientId) headers['CF-Access-Client-Id'] = this.cfClientId;
+        if (this.cfClientSecret) headers['CF-Access-Client-Secret'] = this.cfClientSecret;
         const response = await fetch(`${this.vllmUrl}/health`, {
           signal: controller.signal,
+          headers,
         });
         return response.ok;
       } finally {
@@ -98,9 +108,13 @@ export class VllmEvaluationEngine implements EvaluationEngine {
     const timer = setTimeout(() => controller.abort(), this.timeoutMs);
 
     try {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (this.cfClientId) headers['CF-Access-Client-Id'] = this.cfClientId;
+      if (this.cfClientSecret) headers['CF-Access-Client-Secret'] = this.cfClientSecret;
+
       const response = await fetch(`${this.vllmUrl}/v1/chat/completions`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           model: this.model,
           messages,

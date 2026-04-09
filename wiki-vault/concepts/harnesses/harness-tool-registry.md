@@ -39,4 +39,5 @@ If this node is unclear, revisit [[harness-eval-loop]] to understand how the har
 
 ## Backlinks
 - [[agent-tool-use]]
+- [[harness-eval-loop]]
 - [[harness-orchestration]]

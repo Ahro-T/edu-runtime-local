@@ -1,0 +1,17 @@
+# Remote mode — External vLLM server
+# Ports offset: API 3001, Postgres 5433, OpenClaw 3101
+services:
+  postgres:
+    ports:
+      - "5433:5432"
+
+  app:
+    ports:
+      - "3001:3000"
+    environment:
+      VLLM_URL: ${VLLM_REMOTE_URL:-https://vllm.agentic-ai-gist.org/v1}
+      VLLM_MODEL: ${VLLM_REMOTE_MODEL:-default}
+
+  openclaw:
+    ports:
+      - "3101:3100"

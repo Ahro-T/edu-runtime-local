@@ -49,6 +49,14 @@ printf "Discord guild ID (skip if not using Discord): "
 read discord_guild
 discord_guild="${discord_guild:-}"
 
+printf "Cloudflare Client ID (for vLLM auth, skip if not using): "
+read cf_client_id
+cf_client_id="${cf_client_id:-}"
+
+printf "Cloudflare Client Secret (skip if not using): "
+read cf_client_secret
+cf_client_secret="${cf_client_secret:-}"
+
 printf "LOG_LEVEL [info]: "
 read log_level
 log_level="${log_level:-info}"
@@ -56,6 +64,8 @@ log_level="${log_level:-info}"
 cat > .env << EOF
 DATABASE_URL=postgresql://postgres:postgres@postgres:5432/edu_runtime
 VLLM_URL=${vllm_url}
+CF_CLIENT_ID=${cf_client_id}
+CF_CLIENT_SECRET=${cf_client_secret}
 VAULT_PATH=/app/wiki-vault
 OPENCLAW_DISCORD_TOKEN=${discord_token}
 OPENCLAW_DISCORD_GUILD_ID=${discord_guild}

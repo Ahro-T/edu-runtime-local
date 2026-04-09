@@ -10,11 +10,20 @@ echo "========================================="
 echo "  Edu Runtime — Full Cleanup"
 echo "========================================="
 
+# Container runtime detection
+if [ "${CONTAINER_RUNTIME:-}" = "podman" ]; then
+  COMPOSE="sudo podman-compose"
+  CONTAINER="sudo podman"
+else
+  COMPOSE="docker-compose"
+  CONTAINER="docker"
+fi
+
 # 1. Stop containers
 echo "[cleanup] Stopping containers..."
 cd "$PROJECT_ROOT"
-docker-compose down -v --remove-orphans 2>/dev/null || true
-docker volume prune -f 2>/dev/null || true
+$COMPOSE down -v --remove-orphans 2>/dev/null || true
+$CONTAINER volume prune -f 2>/dev/null || true
 
 # 2. Remove Claude Code (all known paths)
 echo "[cleanup] Removing Claude Code..."

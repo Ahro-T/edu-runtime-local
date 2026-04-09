@@ -35,5 +35,6 @@ When a tool returns an error, the agent must decide whether to retry, use a fall
 Tool use happens in the Act phase of the [[agent-core-loop]]. The result of a tool call feeds into the next Perceive phase.
 
 ## Backlinks
+- [[agent-core-loop]]
 - [[agent-planning]]
 - [[harness-tool-registry]]

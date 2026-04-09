@@ -41,3 +41,5 @@ The gateway captures the Discord channel ID from each interaction and passes it 
 The gateway is a plugin that registers with the [[openclaw-runtime]] on startup. It uses the runtime's HTTP API surface — it does not access the database or agent logic directly.
 
 ## Backlinks
+- [[harness-orchestration]]
+- [[openclaw-runtime]]

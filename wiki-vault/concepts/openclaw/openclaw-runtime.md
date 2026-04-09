@@ -41,5 +41,6 @@ The runtime is the host; plugins are guests. The runtime provides the registries
 If the runtime concept is unclear, revisit [[openclaw-plugin-model]] first to understand what the runtime hosts before examining how it manages the hosting lifecycle.
 
 ## Backlinks
+- [[harness-eval-loop]]
 - [[openclaw-discord-gateway]]
 - [[openclaw-plugin-model]]
