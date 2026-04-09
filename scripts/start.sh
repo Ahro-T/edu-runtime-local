@@ -1,7 +1,7 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # start.sh — Start the Edu runtime stack
 # Usage: ./scripts/start.sh
-set -euo pipefail
+set -eu
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -11,7 +11,7 @@ cd "$PROJECT_ROOT"
 if [ -f .env ]; then
   echo "[start] Loading .env"
 else
-  echo "[start] No .env found. Copy .env.example to .env and fill in values."
+  echo "[start] No .env found. Run ./scripts/setup-dev.sh first."
   exit 1
 fi
 

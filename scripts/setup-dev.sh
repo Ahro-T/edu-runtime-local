@@ -1,14 +1,14 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # setup-dev.sh — Set up dev environment on a shared NUC (no Node required)
 # Usage: ./scripts/setup-dev.sh
-set -euo pipefail
+set -eu
 
 echo "========================================="
 echo "  Edu Runtime — Dev Setup"
 echo "========================================="
 
 # Install Claude Code (standalone, no npm)
-if command -v claude &>/dev/null; then
+if command -v claude >/dev/null 2>&1; then
   echo "[setup] Claude Code already installed"
 else
   echo "[setup] Installing Claude Code..."
@@ -17,8 +17,8 @@ fi
 
 # Interactive .env setup
 if [ -f .env ]; then
-  echo "[setup] .env already exists. Overwrite? (y/N)"
-  read -r overwrite
+  printf "[setup] .env already exists. Overwrite? (y/N) "
+  read overwrite
   if [ "$overwrite" != "y" ] && [ "$overwrite" != "Y" ]; then
     echo "[setup] Keeping existing .env"
     echo ""
@@ -37,16 +37,20 @@ echo ""
 echo "[setup] Creating .env — press Enter to use default"
 echo ""
 
-read -rp "VLLM_URL [http://localhost:8000]: " vllm_url
+printf "VLLM_URL [http://localhost:8000]: "
+read vllm_url
 vllm_url="${vllm_url:-http://localhost:8000}"
 
-read -rp "Discord bot token (skip if not using Discord): " discord_token
+printf "Discord bot token (skip if not using Discord): "
+read discord_token
 discord_token="${discord_token:-}"
 
-read -rp "Discord guild ID (skip if not using Discord): " discord_guild
+printf "Discord guild ID (skip if not using Discord): "
+read discord_guild
 discord_guild="${discord_guild:-}"
 
-read -rp "LOG_LEVEL [info]: " log_level
+printf "LOG_LEVEL [info]: "
+read log_level
 log_level="${log_level:-info}"
 
 cat > .env << EOF

@@ -1,7 +1,7 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # stop.sh — Stop and remove all Edu runtime containers + volumes
 # Leaves no trace. Safe for shared machines.
-set -euo pipefail
+set -eu
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
