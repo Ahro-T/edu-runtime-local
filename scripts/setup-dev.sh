@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # setup-dev.sh — Set up dev environment on a shared NUC (no Node required)
 # Usage: ./scripts/setup-dev.sh
 set -eu

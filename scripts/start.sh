@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # start.sh — Start the Edu runtime stack
 # Usage: ./scripts/start.sh
 set -eu

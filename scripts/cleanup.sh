@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # cleanup.sh — Remove all traces from a shared NUC
 # Usage: ./scripts/cleanup.sh
 set -eu

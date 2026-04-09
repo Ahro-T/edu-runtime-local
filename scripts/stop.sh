@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # stop.sh — Stop and remove all Edu runtime containers + volumes
 # Leaves no trace. Safe for shared machines.
 set -eu
