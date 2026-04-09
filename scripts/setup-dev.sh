@@ -64,8 +64,7 @@ LLM_MODEL=${llm_model}
 VAULT_PATH=/app/wiki-vault
 OPENCLAW_DISCORD_TOKEN=${discord_token}
 OPENCLAW_DISCORD_GUILD_ID=${discord_guild}
-OPENCLAW_GATEWAY_URL=http://localhost:3100
-OPENCLAW_GATEWAY_PORT=3100
+OPENCLAW_GATEWAY_URL=http://localhost:18789
 LOG_LEVEL=${log_level}
 PORT=3000
 EOF

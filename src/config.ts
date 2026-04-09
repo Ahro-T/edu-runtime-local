@@ -7,7 +7,7 @@ const configSchema = z.object({
   LLM_MODEL: z.string().optional().default('gemma4:e2b'),
   DISCORD_TOKEN: z.string().optional(),
   DISCORD_GUILD_ID: z.string().optional(),
-  OPENCLAW_GATEWAY_URL: z.string().optional().default('http://localhost:3100'),
+  OPENCLAW_GATEWAY_URL: z.string().optional().default('http://localhost:18789'),
   LOG_LEVEL: z.enum(['trace', 'debug', 'info', 'warn', 'error', 'fatal']).default('info'),
   PORT: z.coerce.number().int().positive().default(3000),
 });
