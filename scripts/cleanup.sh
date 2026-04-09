@@ -24,7 +24,16 @@ rm -rf "$HOME/.config/claude" 2>/dev/null || true
 rm -f "$HOME/.local/bin/claude" 2>/dev/null || true
 rm -rf "$HOME/.local/share/claude" 2>/dev/null || true
 
-# 3. Remove project
+# 3. Clean shell profile PATH additions
+echo "[cleanup] Cleaning shell profiles..."
+for rc in "$HOME/.bashrc" "$HOME/.zshrc" "$HOME/.profile"; do
+  if [ -f "$rc" ]; then
+    # Remove lines containing .local/bin added by Claude installer
+    grep -v '\.local/bin' "$rc" > "$rc.tmp" 2>/dev/null && mv "$rc.tmp" "$rc" || rm -f "$rc.tmp"
+  fi
+done
+
+# 4. Remove project
 echo "[cleanup] Removing project directory..."
 cd /
 rm -rf "$PROJECT_ROOT"
