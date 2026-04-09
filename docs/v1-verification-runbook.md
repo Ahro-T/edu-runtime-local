@@ -14,7 +14,7 @@ cp .env.example .env
 # Edit .env and fill in:
 #   DISCORD_TOKEN=<your bot token from Discord Developer Portal>
 #   DISCORD_GUILD_ID=<your guild/server ID>
-# Leave DATABASE_URL, VAULT_PATH, OLLAMA_URL, LOG_LEVEL, PORT as-is for local Docker Compose
+# Leave DATABASE_URL, VAULT_PATH, LLM_URL, LOG_LEVEL, PORT as-is for local Docker Compose
 
 docker compose up -d
 docker compose logs -f app
@@ -176,7 +176,7 @@ Next steps: Review the node explanation and try again.
 ```
 
 **What failure looks like:**
-- No response after 60 seconds with Ollama running — check `docker compose logs app` for Ollama timeout errors; verify `OLLAMA_URL` is reachable from the app container
+- No response after 60 seconds with Ollama running — check `docker compose logs app` for Ollama timeout errors; verify `LLM_URL` is reachable from the app container
 - `EVALUATION_UNAVAILABLE` in logs when Ollama should be up — check Ollama container health
 - Malformed evaluation (missing slots) — guardrails should catch this; check logs for guardrails warnings
 
@@ -261,8 +261,8 @@ Then in Discord:
 **What to do:**
 Simulate Ollama being unreachable by editing `.env`:
 ```bash
-# In .env, change OLLAMA_URL to an unreachable address:
-OLLAMA_URL=http://localhost:19999
+# In .env, change LLM_URL to an unreachable address:
+LLM_URL=http://localhost:19999
 docker compose restart app
 ```
 
@@ -284,7 +284,7 @@ docker compose exec postgres psql -U postgres -d edu_runtime \
 
 Restore Ollama and re-evaluate:
 ```bash
-# Restore OLLAMA_URL in .env, then:
+# Restore LLM_URL in .env, then:
 docker compose restart app
 # Submit the answer again in Discord
 ```

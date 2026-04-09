@@ -29,8 +29,8 @@ async function main() {
   const { routes } = buildCompositionRoot({
     db,
     contentRepository,
-    ollamaUrl: config.OLLAMA_URL,
-    ollamaModel: config.OLLAMA_MODEL,
+    llmUrl: config.LLM_URL,
+    llmModel: config.LLM_MODEL,
     logger,
   });
 

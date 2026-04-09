@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { OllamaEvaluationEngine } from '../OllamaEvaluationEngine.js';
+import { LlmEvaluationEngine } from '../LlmEvaluationEngine.js';
 import type { Submission } from '../../../domain/learner/Submission.js';
 import type { KnowledgeNode } from '../../../domain/content/KnowledgeNode.js';
 import type { AssessmentTemplate } from '../../../domain/content/AssessmentTemplate.js';
@@ -94,7 +94,7 @@ function makeBadJsonResponse(): object {
 // Tests
 // ---------------------------------------------------------------------------
 
-describe('OllamaEvaluationEngine', () => {
+describe('LlmEvaluationEngine', () => {
   beforeEach(() => {
     vi.stubGlobal('fetch', vi.fn());
   });
@@ -104,23 +104,23 @@ describe('OllamaEvaluationEngine', () => {
   });
 
   // -------------------------------------------------------------------------
-  // Health check calls /api/tags
+  // Health check calls /v1/models
   // -------------------------------------------------------------------------
-  it('isAvailable calls /api/tags', async () => {
-    const engine = new OllamaEvaluationEngine({ ollamaUrl: 'http://localhost:11434' });
+  it('isAvailable calls /v1/models', async () => {
+    const engine = new LlmEvaluationEngine({ llmUrl: 'http://localhost:11434' });
     vi.mocked(fetch).mockResolvedValueOnce(new Response('{}', { status: 200 }));
 
     const available = await engine.isAvailable();
 
     expect(available).toBe(true);
     expect(vi.mocked(fetch)).toHaveBeenCalledWith(
-      'http://localhost:11434/api/tags',
+      'http://localhost:11434/v1/models',
       expect.objectContaining({ signal: expect.any(AbortSignal) }),
     );
   });
 
-  it('isAvailable returns false when Ollama is unreachable', async () => {
-    const engine = new OllamaEvaluationEngine({ ollamaUrl: 'http://localhost:11434' });
+  it('isAvailable returns false when LLM backend is unreachable', async () => {
+    const engine = new LlmEvaluationEngine({ llmUrl: 'http://localhost:11434' });
     vi.mocked(fetch).mockRejectedValueOnce(new Error('ECONNREFUSED'));
 
     const available = await engine.isAvailable();
@@ -132,7 +132,7 @@ describe('OllamaEvaluationEngine', () => {
   // No CF headers in any request
   // -------------------------------------------------------------------------
   it('does not send CF headers in chat completion requests', async () => {
-    const engine = new OllamaEvaluationEngine({ ollamaUrl: 'http://localhost:11434' });
+    const engine = new LlmEvaluationEngine({ llmUrl: 'http://localhost:11434' });
     vi.mocked(fetch).mockResolvedValueOnce(
       new Response(JSON.stringify(makePassResponse()), { status: 200 }),
     );
@@ -146,7 +146,7 @@ describe('OllamaEvaluationEngine', () => {
   });
 
   it('does not send CF headers in health check requests', async () => {
-    const engine = new OllamaEvaluationEngine({ ollamaUrl: 'http://localhost:11434' });
+    const engine = new LlmEvaluationEngine({ llmUrl: 'http://localhost:11434' });
     vi.mocked(fetch).mockResolvedValueOnce(new Response('{}', { status: 200 }));
 
     await engine.isAvailable();
@@ -161,7 +161,7 @@ describe('OllamaEvaluationEngine', () => {
   // Successful evaluation flow
   // -------------------------------------------------------------------------
   it('returns pass evaluation with valid JSON response', async () => {
-    const engine = new OllamaEvaluationEngine({ ollamaUrl: 'http://localhost:11434' });
+    const engine = new LlmEvaluationEngine({ llmUrl: 'http://localhost:11434' });
     vi.mocked(fetch).mockResolvedValueOnce(
       new Response(JSON.stringify(makePassResponse()), { status: 200 }),
     );
@@ -180,7 +180,7 @@ describe('OllamaEvaluationEngine', () => {
   // ParseError retry: first bad JSON, second good JSON → succeed
   // -------------------------------------------------------------------------
   it('retries once on ParseError and succeeds on second attempt', async () => {
-    const engine = new OllamaEvaluationEngine({ ollamaUrl: 'http://localhost:11434' });
+    const engine = new LlmEvaluationEngine({ llmUrl: 'http://localhost:11434' });
     vi.mocked(fetch)
       .mockResolvedValueOnce(
         new Response(JSON.stringify(makeBadJsonResponse()), { status: 200 }),
@@ -199,7 +199,7 @@ describe('OllamaEvaluationEngine', () => {
   // ParseError double failure: both bad JSON → throw
   // -------------------------------------------------------------------------
   it('throws when both attempts return bad JSON', async () => {
-    const engine = new OllamaEvaluationEngine({ ollamaUrl: 'http://localhost:11434' });
+    const engine = new LlmEvaluationEngine({ llmUrl: 'http://localhost:11434' });
     vi.mocked(fetch)
       .mockResolvedValueOnce(
         new Response(JSON.stringify(makeBadJsonResponse()), { status: 200 }),
@@ -215,16 +215,16 @@ describe('OllamaEvaluationEngine', () => {
   // Timeout uses 60_000 default
   // -------------------------------------------------------------------------
   it('uses 60_000ms default timeout', () => {
-    const engine = new OllamaEvaluationEngine({ ollamaUrl: 'http://localhost:11434' });
+    const engine = new LlmEvaluationEngine({ llmUrl: 'http://localhost:11434' });
     // Access private field via any cast to verify default
     expect((engine as any).timeoutMs).toBe(60_000);
   });
 
   // -------------------------------------------------------------------------
-  // Ollama unreachable → degraded
+  // LLM backend unreachable → degraded
   // -------------------------------------------------------------------------
-  it('throws with temporary-eval-unavailable code when Ollama is unreachable', async () => {
-    const engine = new OllamaEvaluationEngine({ ollamaUrl: 'http://localhost:11434' });
+  it('throws with temporary-eval-unavailable code when LLM backend is unreachable', async () => {
+    const engine = new LlmEvaluationEngine({ llmUrl: 'http://localhost:11434' });
     vi.mocked(fetch).mockRejectedValueOnce(new Error('ECONNREFUSED'));
 
     await expect(engine.evaluate(submission, node, template)).rejects.toMatchObject({

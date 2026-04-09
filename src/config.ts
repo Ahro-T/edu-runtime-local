@@ -2,9 +2,9 @@ import { z } from 'zod';
 
 const configSchema = z.object({
   DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
-  OLLAMA_URL: z.string().optional().default('http://ollama:11434'),
+  LLM_URL: z.string().optional().default('http://ollama:11434'),
   VAULT_PATH: z.string().min(1, 'VAULT_PATH is required'),
-  OLLAMA_MODEL: z.string().optional().default('gemma4:e2b'),
+  LLM_MODEL: z.string().optional().default('gemma4:e2b'),
   DISCORD_TOKEN: z.string().optional(),
   DISCORD_GUILD_ID: z.string().optional(),
   OPENCLAW_GATEWAY_URL: z.string().optional().default('http://localhost:3100'),

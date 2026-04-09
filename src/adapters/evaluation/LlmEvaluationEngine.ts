@@ -8,12 +8,12 @@ import { parseEvalOutput, ParseError } from './output-parser.js';
 import { applyGuardrails } from './guardrails.js';
 import { buildDegradedResult } from './degraded-mode.js';
 
-interface OllamaChatMessage {
+interface LlmChatMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
 }
 
-interface OllamaChatCompletionResponse {
+interface LlmChatCompletionResponse {
   id: string;
   model: string;
   choices: Array<{
@@ -23,17 +23,17 @@ interface OllamaChatCompletionResponse {
   }>;
 }
 
-export class OllamaEvaluationEngine implements EvaluationEngine {
-  private readonly ollamaUrl: string;
+export class LlmEvaluationEngine implements EvaluationEngine {
+  private readonly llmUrl: string;
   private readonly model: string;
   private readonly timeoutMs: number;
 
   constructor(options: {
-    ollamaUrl: string;
+    llmUrl: string;
     model?: string | undefined;
     timeoutMs?: number | undefined;
   }) {
-    this.ollamaUrl = options.ollamaUrl.replace(/\/$/, '');
+    this.llmUrl = options.llmUrl.replace(/\/$/, '');
     this.model = options.model ?? 'gemma4:e2b';
     this.timeoutMs = options.timeoutMs ?? 60_000;
   }
@@ -45,7 +45,7 @@ export class OllamaEvaluationEngine implements EvaluationEngine {
   ): Promise<SubmissionEvaluation> {
     const prompt = buildEvaluationPrompt(submission, node, template);
 
-    const messages: OllamaChatMessage[] = [
+    const messages: LlmChatMessage[] = [
       {
         role: 'system',
         content:
@@ -54,11 +54,11 @@ export class OllamaEvaluationEngine implements EvaluationEngine {
       { role: 'user', content: prompt },
     ];
 
-    let responseJson: OllamaChatCompletionResponse;
+    let responseJson: LlmChatCompletionResponse;
     try {
-      responseJson = await this.callOllama(messages);
+      responseJson = await this.callLlm(messages);
     } catch (err) {
-      // Ollama unreachable — return degraded sentinel
+      // LLM backend unreachable — return degraded sentinel
       // Caller is responsible for preserving the submission
       const degraded = buildDegradedResult();
       throw Object.assign(
@@ -76,9 +76,9 @@ export class OllamaEvaluationEngine implements EvaluationEngine {
     } catch (err) {
       if (err instanceof ParseError) {
         // Retry once on ParseError — small models sometimes produce bad JSON on first try
-        let retryResponseJson: OllamaChatCompletionResponse;
+        let retryResponseJson: LlmChatCompletionResponse;
         try {
-          retryResponseJson = await this.callOllama(messages);
+          retryResponseJson = await this.callLlm(messages);
         } catch {
           const degraded = buildDegradedResult();
           throw Object.assign(
@@ -95,12 +95,13 @@ export class OllamaEvaluationEngine implements EvaluationEngine {
     }
   }
 
+  // Uses /v1/models (OpenAI-compatible) — works with Ollama, llama.cpp, and any OpenAI-compatible backend. Only checks response.ok, does not parse body (format differs between backends).
   async isAvailable(): Promise<boolean> {
     try {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), 5_000);
       try {
-        const response = await fetch(`${this.ollamaUrl}/api/tags`, {
+        const response = await fetch(`${this.llmUrl}/v1/models`, {
           signal: controller.signal,
         });
         return response.ok;
@@ -112,14 +113,14 @@ export class OllamaEvaluationEngine implements EvaluationEngine {
     }
   }
 
-  private async callOllama(
-    messages: OllamaChatMessage[],
-  ): Promise<OllamaChatCompletionResponse> {
+  private async callLlm(
+    messages: LlmChatMessage[],
+  ): Promise<LlmChatCompletionResponse> {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), this.timeoutMs);
 
     try {
-      const response = await fetch(`${this.ollamaUrl}/v1/chat/completions`, {
+      const response = await fetch(`${this.llmUrl}/v1/chat/completions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -132,10 +133,10 @@ export class OllamaEvaluationEngine implements EvaluationEngine {
       });
 
       if (!response.ok) {
-        throw new Error(`Ollama responded with status ${response.status}`);
+        throw new Error(`LLM backend responded with status ${response.status}`);
       }
 
-      return (await response.json()) as OllamaChatCompletionResponse;
+      return (await response.json()) as LlmChatCompletionResponse;
     } finally {
       clearTimeout(timer);
     }

@@ -37,13 +37,13 @@ echo ""
 echo "[setup] Creating .env — press Enter to use default"
 echo ""
 
-printf "OLLAMA_URL [http://ollama:11434]: "
-read ollama_url
-ollama_url="${ollama_url:-http://ollama:11434}"
+printf "LLM_URL [http://ollama:11434]: "
+read llm_url
+llm_url="${llm_url:-http://ollama:11434}"
 
-printf "OLLAMA_MODEL [gemma4:e2b]: "
-read ollama_model
-ollama_model="${ollama_model:-gemma4:e2b}"
+printf "LLM_MODEL [gemma4:e2b]: "
+read llm_model
+llm_model="${llm_model:-gemma4:e2b}"
 
 printf "Discord bot token (skip if not using Discord): "
 read discord_token
@@ -59,8 +59,8 @@ log_level="${log_level:-info}"
 
 cat > .env << EOF
 DATABASE_URL=postgresql://postgres:postgres@postgres:5432/edu_runtime
-OLLAMA_URL=${ollama_url}
-OLLAMA_MODEL=${ollama_model}
+LLM_URL=${llm_url}
+LLM_MODEL=${llm_model}
 VAULT_PATH=/app/wiki-vault
 OPENCLAW_DISCORD_TOKEN=${discord_token}
 OPENCLAW_DISCORD_GUILD_ID=${discord_guild}
