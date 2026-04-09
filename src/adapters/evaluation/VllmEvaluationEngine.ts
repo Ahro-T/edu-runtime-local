@@ -27,8 +27,8 @@ export class VllmEvaluationEngine implements EvaluationEngine {
   private readonly vllmUrl: string;
   private readonly model: string;
   private readonly timeoutMs: number;
-  private readonly cfClientId?: string;
-  private readonly cfClientSecret?: string;
+  private readonly cfClientId?: string | undefined;
+  private readonly cfClientSecret?: string | undefined;
 
   constructor(options: {
     vllmUrl: string;
