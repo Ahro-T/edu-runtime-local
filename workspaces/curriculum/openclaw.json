@@ -1,0 +1,29 @@
+{
+  "plugins": {
+    "memory-wiki": {
+      "enabled": true,
+      "isolated": true,
+      "renderMode": "obsidian",
+      "autoCompile": false,
+      "vaultPath": "../../wiki-vault",
+      "layout": {
+        "sources": "sources",
+        "entities": "entities",
+        "concepts": "concepts",
+        "syntheses": "syntheses",
+        "reports": "reports",
+        "templates": "templates"
+      },
+      "pillars": ["agents", "harnesses", "openclaw"],
+      "conceptDirs": [
+        "concepts/agents",
+        "concepts/harnesses",
+        "concepts/openclaw"
+      ]
+    }
+  },
+  "agent": {
+    "name": "curriculum",
+    "modes": ["ingest", "lint", "refactor"]
+  }
+}

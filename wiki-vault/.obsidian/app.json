@@ -1,0 +1,16 @@
+{
+  "useMarkdownLinks": false,
+  "alwaysUpdateLinks": true,
+  "newLinkFormat": "shortest",
+  "defaultViewMode": "preview",
+  "showInlineTitle": true,
+  "showRibbonButtons": true,
+  "attachmentFolderPath": ".",
+  "newFileFolderPath": "concepts",
+  "showBacklinks": true,
+  "showUnsupportedFiles": false,
+  "enabledPlugins": [
+    "backlink",
+    "graph"
+  ]
+}

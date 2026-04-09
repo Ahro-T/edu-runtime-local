@@ -9,9 +9,9 @@ const logger = pino({ level: 'silent' });
 
 async function createFixtureVault(): Promise<string> {
   const vaultPath = await mkdtemp(join(tmpdir(), 'test-vault-'));
-  await mkdir(join(vaultPath, 'agents'));
-  await mkdir(join(vaultPath, 'harnesses'));
-  await mkdir(join(vaultPath, 'openclaw'));
+  await mkdir(join(vaultPath, 'concepts', 'agents'), { recursive: true });
+  await mkdir(join(vaultPath, 'concepts', 'harnesses'), { recursive: true });
+  await mkdir(join(vaultPath, 'concepts', 'openclaw'), { recursive: true });
   await mkdir(join(vaultPath, 'templates'));
 
   const nodeA = `---
@@ -124,9 +124,9 @@ rubric:
 ---
 `;
 
-  await writeFile(join(vaultPath, 'agents', 'node-a.md'), nodeA);
-  await writeFile(join(vaultPath, 'agents', 'node-b.md'), nodeB);
-  await writeFile(join(vaultPath, 'harnesses', 'node-c.md'), nodeC);
+  await writeFile(join(vaultPath, 'concepts', 'agents', 'node-a.md'), nodeA);
+  await writeFile(join(vaultPath, 'concepts', 'agents', 'node-b.md'), nodeB);
+  await writeFile(join(vaultPath, 'concepts', 'harnesses', 'node-c.md'), nodeC);
   await writeFile(join(vaultPath, 'templates', 'tpl-node-a-v1.md'), tplA);
   await writeFile(join(vaultPath, 'templates', 'tpl-node-b-v1.md'), tplB);
   await writeFile(join(vaultPath, 'templates', 'tpl-node-c-v1.md'), tplC);
@@ -218,7 +218,7 @@ describe('ObsidianContentRepository', () => {
 describe('ObsidianContentRepository validation', () => {
   it('validateContent reports broken prerequisite refs', async () => {
     const vaultPath = await mkdtemp(join(tmpdir(), 'test-vault-invalid-'));
-    await mkdir(join(vaultPath, 'agents'));
+    await mkdir(join(vaultPath, 'concepts', 'agents'), { recursive: true });
     await mkdir(join(vaultPath, 'templates'));
 
     const brokenNode = `---
@@ -247,12 +247,90 @@ rubric:
   remediationRules: []
 ---
 `;
-    await writeFile(join(vaultPath, 'agents', 'broken.md'), brokenNode);
+    await writeFile(join(vaultPath, 'concepts', 'agents', 'broken.md'), brokenNode);
     await writeFile(join(vaultPath, 'templates', 'tpl-broken-v1.md'), tpl);
 
     const repo = new ObsidianContentRepository(vaultPath, logger);
     const errors = await repo.validateContent();
     expect(errors.some(e => e.includes('nonexistent-node'))).toBe(true);
+
+    await rm(vaultPath, { recursive: true });
+  });
+
+  it('parseNodeFile handles wiki frontmatter fields gracefully', async () => {
+    const vaultPath = await mkdtemp(join(tmpdir(), 'test-vault-wiki-'));
+    await mkdir(join(vaultPath, 'concepts', 'agents'), { recursive: true });
+    await mkdir(join(vaultPath, 'templates'));
+
+    const wikiNode = `---
+id: wiki-node
+pillar: agents
+node_type: concept
+title: Wiki Node
+summary: A node with wiki-specific frontmatter
+prerequisites: []
+related: []
+assessment_template: tpl-wiki-node-v1
+mastery_stage_target: descriptive
+teacher_prompt_mode: guided
+claims:
+  - agents are stateful
+confidence: high
+evidence:
+  - source: some-paper.md
+provenance: wiki-compile-2024
+---
+
+Body of wiki node.
+`;
+    const tpl = `---
+id: tpl-wiki-node-v1
+nodeId: wiki-node
+requiredSlots:
+  - definition
+instructions: Answer.
+rubric:
+  passRules: []
+  failRules: []
+  remediationRules: []
+---
+`;
+    await writeFile(join(vaultPath, 'concepts', 'agents', 'wiki-node.md'), wikiNode);
+    await writeFile(join(vaultPath, 'templates', 'tpl-wiki-node-v1.md'), tpl);
+
+    const repo = new ObsidianContentRepository(vaultPath, logger);
+    const node = await repo.getNodeById('wiki-node');
+    expect(node).not.toBeNull();
+    expect(node?.id).toBe('wiki-node');
+    expect(node?.pillar).toBe('agents');
+
+    await rm(vaultPath, { recursive: true });
+  });
+
+  it('parseNodeFile throws on invalid pillar value', async () => {
+    const vaultPath = await mkdtemp(join(tmpdir(), 'test-vault-badpillar-'));
+    await mkdir(join(vaultPath, 'concepts', 'agents'), { recursive: true });
+    await mkdir(join(vaultPath, 'templates'));
+
+    const badPillarNode = `---
+id: bad-pillar-node
+pillar: invalid-pillar
+node_type: concept
+title: Bad Pillar
+summary: A node with an invalid pillar
+prerequisites: []
+related: []
+assessment_template: tpl-bad-v1
+mastery_stage_target: descriptive
+teacher_prompt_mode: guided
+---
+
+Body.
+`;
+    await writeFile(join(vaultPath, 'concepts', 'agents', 'bad-pillar.md'), badPillarNode);
+
+    const repo = new ObsidianContentRepository(vaultPath, logger);
+    await expect(repo.getNodeById('bad-pillar-node')).rejects.toThrow(/invalid pillar/i);
 
     await rm(vaultPath, { recursive: true });
   });

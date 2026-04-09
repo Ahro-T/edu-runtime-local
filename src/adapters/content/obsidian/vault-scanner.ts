@@ -6,7 +6,7 @@ export interface ScannedFile {
   raw: string;
 }
 
-const NODE_DIRS = ['agents', 'harnesses', 'openclaw'] as const;
+const NODE_DIRS = ['concepts/agents', 'concepts/harnesses', 'concepts/openclaw'] as const;
 const TEMPLATE_DIR = 'templates';
 
 export async function scanNodeFiles(vaultPath: string): Promise<ScannedFile[]> {

@@ -7,8 +7,6 @@ services:
       POSTGRES_DB: edu_runtime
     ports:
       - "5432:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d edu_runtime"]
       interval: 10s
@@ -27,6 +25,7 @@ services:
       - .env
     volumes:
       - ./vault:/app/vault
+      - ./wiki-vault:/app/wiki-vault
     depends_on:
       postgres:
         condition: service_healthy
@@ -37,8 +36,41 @@ services:
       retries: 5
       start_period: 30s
 
+  openclaw:
+    image: ghcr.io/openclaw/openclaw:latest
+    ports:
+      - "3100:3100"
+    environment:
+      DISCORD_TOKEN: ${OPENCLAW_DISCORD_TOKEN}
+      DISCORD_GUILD_ID: ${OPENCLAW_DISCORD_GUILD_ID}
+      RUNTIME_API_URL: http://app:3000
+    volumes:
+      - ./workspaces/teacher:/workspace
+    depends_on:
+      app:
+        condition: service_healthy
+
+  curriculum-cron:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    volumes:
+      - ./vault:/app/vault:ro
+      - ./wiki-vault:/app/wiki-vault
+      - ./scripts:/app/scripts:ro
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        echo "Curriculum cron started"
+        while true; do
+          echo "[$(date -Iseconds)] Running wiki lint + index generation..."
+          cd /app && bash /app/scripts/generate-index.sh 2>&1 || echo "generate-index failed"
+          echo "[$(date -Iseconds)] Done. Sleeping 6h."
+          sleep 21600
+        done
+
   # vllm:
-  #   # vLLM typically runs on a GPU host — uncomment and configure if running locally
   #   image: vllm/vllm-openai:latest
   #   runtime: nvidia
   #   environment:
@@ -53,6 +85,3 @@ services:
   #           - driver: nvidia
   #             count: 1
   #             capabilities: [gpu]
-
-volumes:
-  pgdata:

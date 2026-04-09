@@ -4,8 +4,9 @@ const configSchema = z.object({
   DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
   VLLM_URL: z.string().min(1, 'VLLM_URL is required'),
   VAULT_PATH: z.string().min(1, 'VAULT_PATH is required'),
-  DISCORD_TOKEN: z.string().min(1, 'DISCORD_TOKEN is required'),
-  DISCORD_GUILD_ID: z.string().min(1, 'DISCORD_GUILD_ID is required'),
+  DISCORD_TOKEN: z.string().optional(),
+  DISCORD_GUILD_ID: z.string().optional(),
+  OPENCLAW_GATEWAY_URL: z.string().optional().default('http://localhost:3100'),
   LOG_LEVEL: z.enum(['trace', 'debug', 'info', 'warn', 'error', 'fatal']).default('info'),
   PORT: z.coerce.number().int().positive().default(3000),
 });

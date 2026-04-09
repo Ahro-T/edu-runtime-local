@@ -31,6 +31,8 @@ export interface ParsedFile<T> {
   body: string;
 }
 
+const VALID_PILLARS: readonly Pillar[] = ['agents', 'harnesses', 'openclaw'];
+
 export function parseNodeFile(raw: string, filePath: string): ParsedFile<NodeFrontmatter> {
   const { data, content } = matter(raw);
 
@@ -45,10 +47,15 @@ export function parseNodeFile(raw: string, filePath: string): ParsedFile<NodeFro
     }
   }
 
+  const pillar = data['pillar'];
+  if (!VALID_PILLARS.includes(pillar as Pillar)) {
+    throw new Error(`Invalid pillar value "${pillar}" in ${filePath}. Must be one of: ${VALID_PILLARS.join(', ')}`);
+  }
+
   return {
     frontmatter: {
       id: String(data['id']),
-      pillar: data['pillar'] as Pillar,
+      pillar: pillar as Pillar,
       node_type: data['node_type'] as NodeType,
       title: String(data['title']),
       summary: String(data['summary']),

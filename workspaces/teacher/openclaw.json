@@ -1,0 +1,13 @@
+{
+  "name": "teacher-agent",
+  "model": "anthropic/claude-sonnet-4-6",
+  "channels": {
+    "discord": {
+      "enabled": true,
+      "channelPattern": "{pillar}-study-{learner}"
+    }
+  },
+  "env": {
+    "RUNTIME_API_URL": "${RUNTIME_API_URL:-http://localhost:3000}"
+  }
+}

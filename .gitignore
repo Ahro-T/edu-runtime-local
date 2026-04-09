@@ -1,0 +1,29 @@
+# Obsidian workspace state (not tracked)
+wiki-vault/.obsidian/workspace.json
+wiki-vault/.obsidian/workspace-mobile.json
+wiki-vault/.obsidian/cache/
+research/.obsidian/workspace.json
+research/.obsidian/workspace-mobile.json
+research/.obsidian/cache/
+
+# Research vault (session-specific, not canonical)
+research/
+
+# Secrets — NEVER commit
+.env
+.env.*
+!.env.example
+
+# Node modules
+node_modules/
+
+# Build output
+dist/
+
+# Runtime state
+state/
+*.log
+coverage/
+
+# OMC internal
+.omc/

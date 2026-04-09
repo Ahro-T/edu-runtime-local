@@ -1,7 +1,0 @@
-{
-  "tool_name": "WebFetch",
-  "tool_input_preview": "{\"url\":\"https://docs.openclaw.ai/reference/compile\",\"prompt\":\"What is the compile agent or compile command in OpenClaw?\"}",
-  "error": "Request failed with status code 404",
-  "timestamp": "2026-04-09T09:50:29.617Z",
-  "retry_count": 3
-}

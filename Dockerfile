@@ -21,6 +21,8 @@ RUN npm ci --omit=dev
 
 COPY --from=builder /app/dist ./dist
 COPY vault/ ./vault/
+COPY wiki-vault/ ./wiki-vault/
+COPY scripts/generate-index.sh ./scripts/generate-index.sh
 
 ENV NODE_ENV=production
 

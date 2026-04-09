@@ -1,1 +1,0 @@
-{"version":3,"file":"sessions.d.ts","sourceRoot":"","sources":["../../../src/api/routes/sessions.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,eAAe,EAAE,MAAM,SAAS,CAAC;AAC/C,OAAO,KAAK,EAAE,cAAc,EAAE,MAAM,kCAAkC,CAAC;AASvE,wBAAgB,cAAc,CAAC,cAAc,EAAE,cAAc,IACpC,KAAK,eAAe,KAAG,OAAO,CAAC,IAAI,CAAC,CAmB5D"}

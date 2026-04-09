@@ -35,7 +35,7 @@ Pillar: ${node.pillar}
 Summary: ${node.summary}
 ${prerequisites}
 ${relatedNodes}
-Body: ${node.body}
+Body: ${node.body.replace(/\[\[([^\]]+)\]\]/g, '$1')}
 
 ## Assessment Instructions
 ${template.instructions}

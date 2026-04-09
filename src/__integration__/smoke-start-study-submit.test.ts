@@ -25,7 +25,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const VAULT_PATH = path.resolve(__dirname, '../../vault');
+const VAULT_PATH = path.resolve(__dirname, '../../wiki-vault');
 
 let container: StartedPostgreSqlContainer;
 let pool: pg.Pool;

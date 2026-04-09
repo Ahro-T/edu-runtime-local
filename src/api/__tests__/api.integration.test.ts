@@ -34,7 +34,7 @@ import { fileURLToPath } from 'url';
 import type { FastifyInstance } from 'fastify';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const VAULT_PATH = path.resolve(__dirname, '../../../vault');
+const VAULT_PATH = path.resolve(__dirname, '../../../wiki-vault');
 
 const logger = pino({ level: 'silent' });
 
