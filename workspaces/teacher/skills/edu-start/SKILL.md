@@ -9,11 +9,6 @@ command-arg-mode: raw
 
 # edu_start
 
-Starts a learning session by calling the Runtime API.
+Run: `node /workspace/skills/edu-start/start.mjs <pillar>`
 
-When invoked, run:
-```
-bash /workspace/skills/edu-start/start.sh <pillar>
-```
-
-Then explain the current node to the learner in 3-8 sentences. End with: type `/edu_task` when ready.
+The script returns JSON. Send the `message` field to the learner. Do not change it.

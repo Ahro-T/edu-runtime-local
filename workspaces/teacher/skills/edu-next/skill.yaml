@@ -1,0 +1,17 @@
+name: edu_next
+description: "Advance to the next learning node"
+version: "1.0.0"
+entry_point: next.mjs
+input_schema:
+  type: object
+  properties:
+    pillar:
+      type: string
+      description: "Learning pillar"
+      default: "agents"
+output_schema:
+  type: object
+  properties:
+    message:
+      type: string
+      description: "Complete Discord message about the new node"

@@ -1,0 +1,13 @@
+name: edu_status
+description: "Show learner progress and current status"
+version: "1.0.0"
+entry_point: status.mjs
+input_schema:
+  type: object
+  properties: {}
+output_schema:
+  type: object
+  properties:
+    message:
+      type: string
+      description: "Complete Discord message with learner dashboard"

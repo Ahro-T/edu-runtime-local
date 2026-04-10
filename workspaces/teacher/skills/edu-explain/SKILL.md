@@ -9,9 +9,6 @@ command-arg-mode: raw
 
 # edu_explain
 
-When invoked, run:
-```
-bash /workspace/skills/edu-explain/explain.sh <pillar>
-```
+Run: `node /workspace/skills/edu-explain/explain.mjs <pillar>`
 
-Explain the node content in 3-8 sentences following SOUL.md tone. End with next steps.
+The script returns JSON. Send the `message` field to the learner. Do not change it.

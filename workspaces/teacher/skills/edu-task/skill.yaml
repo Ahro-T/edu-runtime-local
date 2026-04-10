@@ -1,0 +1,17 @@
+name: edu_task
+description: "Get a 5-slot assessment task for the current node"
+version: "1.0.0"
+entry_point: task.mjs
+input_schema:
+  type: object
+  properties:
+    pillar:
+      type: string
+      description: "Learning pillar"
+      default: "agents"
+output_schema:
+  type: object
+  properties:
+    message:
+      type: string
+      description: "Complete Discord message with 5-slot assessment"

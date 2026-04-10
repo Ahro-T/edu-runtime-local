@@ -1,0 +1,17 @@
+name: edu_start
+description: "Start a learning session for a pillar"
+version: "1.0.0"
+entry_point: start.mjs
+input_schema:
+  type: object
+  properties:
+    pillar:
+      type: string
+      description: "Learning pillar: agents, harnesses, or openclaw"
+      default: "agents"
+output_schema:
+  type: object
+  properties:
+    message:
+      type: string
+      description: "Complete Discord message to send to learner"

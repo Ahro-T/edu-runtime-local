@@ -9,9 +9,6 @@ command-arg-mode: raw
 
 # edu_next
 
-When invoked, run:
-```
-bash /workspace/skills/edu-next/next.sh <pillar>
-```
+Run: `node /workspace/skills/edu-next/next.mjs <pillar>`
 
-Explain the new node in 3-8 sentences. End with: type `/edu_task` when ready.
+The script returns JSON. Send the `message` field to the learner. Do not change it.

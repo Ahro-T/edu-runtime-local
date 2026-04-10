@@ -1,6 +1,9 @@
 {
   "name": "teacher-agent",
   "model": "ollama/gemma4:e2b",
+  "modelParams": {
+    "temperature": 0.2
+  },
   "channels": {
     "discord": {
       "enabled": true,

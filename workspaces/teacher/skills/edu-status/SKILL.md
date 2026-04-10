@@ -9,9 +9,6 @@ command-arg-mode: raw
 
 # edu_status
 
-When invoked, run:
-```
-bash /workspace/skills/edu-status/status.sh
-```
+Run: `node /workspace/skills/edu-status/status.mjs`
 
-Summarize the dashboard data: current node, stage, pending reviews, pillar progress.
+The script returns JSON. Send the `message` field to the learner. Do not change it.
