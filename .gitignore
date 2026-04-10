@@ -28,3 +28,9 @@ coverage/
 
 # OMC internal
 .omc/
+workspaces/teacher/.openclaw/
+workspaces/teacher/BOOTSTRAP.md
+workspaces/teacher/IDENTITY.md
+workspaces/teacher/TOOLS.md
+workspaces/teacher/USER.md
+**/node_modules/

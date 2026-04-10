@@ -1,6 +1,6 @@
 {
   "name": "teacher-agent",
-  "model": "anthropic/claude-sonnet-4-6",
+  "model": "ollama/gemma4:e2b",
   "channels": {
     "discord": {
       "enabled": true,
